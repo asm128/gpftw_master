@@ -11,6 +11,8 @@
 #ifndef APPLICATION_H_098273498237423
 #define APPLICATION_H_098273498237423
 
+static constexpr const uint32_t													RENDER_THREAD_COUNT					= 4;
+
 struct STiledTerrainCounters {
 						uint32_t												nBaseTileCount						;	// Base tile count is equal to (tile map width*tile map depth)
 						uint32_t												nTileColumnCount					;	// Stores the amount of tile columns that contain a single map chunk
@@ -61,14 +63,35 @@ struct SApplicationThreadsCall {
 };
 
 struct SApplicationThreads {
-						uintptr_t												Handles	[4]							;
-						SApplicationThreadsState								States	[4]							;
+						uintptr_t												Handles	[RENDER_THREAD_COUNT]		;
+						SApplicationThreadsState								States	[RENDER_THREAD_COUNT]		;
 						::gpk::array_pod<SApplicationThreadsCall>				Arguments							;
 };
 
+struct SApplication;
+
 struct SThreadArgs {
-						::SApplicationThreads									* ApplicationThreads				;
-						int32_t													ThreadId							;
+						::SApplicationThreads										* ApplicationThreads				;
+						int32_t														ThreadId							;
+						SApplication												* ApplicationInstance				;
+};
+
+struct SDrawTrianglesArgs {
+						const ::gpk::array_view	<::gpk::STriangleWeights<uint32_t>>	VertexIndexList	;
+						const ::gpk::array_view	<::gpk::SCoord3<float>>				Vertices		;
+						const ::gpk::array_view	<::gpk::SCoord2<float>>				Uvs				;
+						const ::gpk::grid_view	<::gpk::SColorBGRA>					TextureView		;
+						double														FFar			;
+						double														FNear			;
+						const ::gpk::SCoord3<float>									LightDir		;
+						::SRenderCache												RenderCache		;
+						::gpk::grid_view	<uint32_t>								TargetDepthView	;
+						::gpk::grid_view	<::gpk::SColorBGRA>						TargetView		;
+						const ::gpk::SColorFloat									DiffuseColor	;							
+						const ::gpk::SColorFloat									AmbientColor	;							
+						const ::gpk::array_view<::gpk::SLightInfoRSW>				Lights			;
+						uint32_t													* PixelsDrawn	;
+						uint32_t													* PixelsSkipped	;
 };
 
 struct SApplication {
@@ -92,9 +115,9 @@ struct SApplication {
 						//::gpk::array_obj<::gpk::SModelRSM>					RSMModel							= {};
 
 						// cabildo 2954
-						::SRenderCache											RenderCache							= {};
+						::SRenderCache											RenderCache	[RENDER_THREAD_COUNT]	= {};
 						::SApplicationThreads									Threads								= {};
-						::SThreadArgs											ThreadArgs[4]						= {};
+						::SThreadArgs											ThreadArgs	[RENDER_THREAD_COUNT]	= {};
 
 						::gpk::SRenderTarget									OffscreenGND						= {};
 

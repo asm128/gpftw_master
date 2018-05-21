@@ -84,7 +84,7 @@ static				void												myThread									(void* _applicationThreads)										
 static				::gpk::error_t										setupThreads								(::SApplication& applicationInstance)													{
 	for(uint32_t iThread = 0, threadCount = ::gpk::size(applicationInstance.Threads.Handles); iThread < threadCount; ++iThread) {
 		applicationInstance.Threads.States	[iThread]							= {true,};									
-		applicationInstance.Threads.Handles	[iThread]							= _beginthread(myThread, 0, &(applicationInstance.ThreadArgs[iThread] = {&applicationInstance.Threads, (int32_t)iThread}));
+		applicationInstance.Threads.Handles	[iThread]							= _beginthread(myThread, 0, &(applicationInstance.ThreadArgs[iThread] = {&applicationInstance.Threads, (int32_t)iThread, &applicationInstance}));
 	}
 	return 0;
 }
@@ -283,9 +283,9 @@ static				::gpk::error_t										setup										(::SApplication& applicationIns
 	}
 	int32_t 																	pixelsDrawn1								= drawGND(applicationInstance); 
 	error_if(errored(pixelsDrawn1), "??");
-	for(uint32_t y = 0, yMax = applicationInstance.OffscreenGND.Color.View.metrics().y; y < yMax; ++y) {
+	for(uint32_t y = 0, yMax = applicationInstance.OffscreenGND.Color.View.metrics().y; y < yMax; ++y) 
 		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), applicationInstance.OffscreenGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
-	}
+
 	static constexpr const ::gpk::SCoord2<int32_t>								sizeCharCell								= {9, 16};
 	uint32_t																	lineOffset									= 0;
 	static constexpr const char													textLine2	[]								= "Press ESC to exit.";
@@ -302,7 +302,7 @@ static				::gpk::error_t										setup										(::SApplication& applicationIns
 
 	const ::gpk::SGNDFileContents												& gndData									= applicationInstance.GNDData;
 	const ::gpk::SRSWFileContents												& rswData									= applicationInstance.RSWData;
-	const ::SRenderCache														& renderCache								= applicationInstance.RenderCache;
+	const ::SRenderCache														& renderCache								= applicationInstance.RenderCache[0];
 	uint32_t
 
 	textLen																	= (uint32_t)sprintf_s(buffer, "[%u x %u]. FPS: %g. Last frame seconds: %g."					, mainWindow.Size.x, mainWindow.Size.y, 1 / timer.LastTimeSeconds, timer.LastTimeSeconds);							::gpk::textLineDrawAlignedFixedSizeRGBA(offscreenView, fontAtlasView, --lineOffset, offscreenMetrics, sizeCharCell, {buffer, textLen});

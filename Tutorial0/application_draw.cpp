@@ -2,6 +2,18 @@
 #include "gpk_bitmap_target.h"
 #include "gpk_ro_rsw.h"
 
+
+					void												fragmentThread								(void* _applicationThreads)														{
+	::SThreadArgs																& threadArgs								= *(::SThreadArgs*)_applicationThreads;
+	::SApplicationThreads														& applicationThreads						= *threadArgs.ApplicationThreads;
+	int32_t																		threadId									= threadArgs.ThreadId;
+	while(false == applicationThreads.States[threadId].RequestedClose) {
+		Sleep(10);
+	}
+	applicationThreads.States[threadId].Closed								= true;
+}
+
+
 					::gpk::error_t										drawPixelGND									
 	( ::SRenderCache															& renderCache
 	, ::gpk::SColorBGRA															& targetColorCell
@@ -159,9 +171,10 @@ static				::gpk::error_t										transformNormals
 	return 0;
 }
 
+
 static				::gpk::error_t										drawTriangles
 	( const ::gpk::array_view	<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
-	, const ::gpk::array_view<::gpk::SCoord3<float>>				& vertices
+	, const ::gpk::array_view	<::gpk::SCoord3<float>>				& vertices
 	, const ::gpk::array_view	<::gpk::SCoord2<float>>				& uvs
 	, const ::gpk::grid_view	<::gpk::SColorBGRA>					& textureView
 	, double														fFar
@@ -216,7 +229,7 @@ static				::gpk::error_t										drawTriangles
 	::gpk::STexture<uint32_t>													& offscreenDepth							= applicationInstance.OffscreenGND.DepthStencil;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 
-	::SRenderCache																& renderCache								= applicationInstance.RenderCache;
+	::SRenderCache																& renderCache								= applicationInstance.RenderCache[0];
 
 	const ::gpk::SMatrix4<float>												& projection								= applicationInstance.Scene.Transforms.FinalProjection	;
 	const ::gpk::SMatrix4<float>												& viewMatrix								= applicationInstance.Scene.Transforms.View				;
@@ -228,8 +241,8 @@ static				::gpk::error_t										drawTriangles
 	xWorld.Identity();
 	const double																& fFar										= applicationInstance.Scene.Camera.Range.Far	;
 	const double																& fNear										= applicationInstance.Scene.Camera.Range.Near	;
-	uint32_t																	& pixelsDrawn								= applicationInstance.RenderCache.PixelsDrawn	= 0;
-	uint32_t																	& pixelsSkipped								= applicationInstance.RenderCache.PixelsSkipped	= 0;
+	uint32_t																	& pixelsDrawn								= renderCache.PixelsDrawn	= 0;
+	uint32_t																	& pixelsSkipped								= renderCache.PixelsSkipped	= 0;
 	renderCache.WireframePixelCoords.clear();
 	renderCache.TrianglesDrawn												= 0;
 	const ::gpk::SCoord2<int32_t>												offscreenMetricsI							= offscreenMetrics.Cast<int32_t>();
@@ -267,6 +280,7 @@ static				::gpk::error_t										drawTriangles
 			transformNormals(gndNode.VertexIndices, gndNode.Normals, xWorld, renderCache);
 			//timerMark.Frame(); info_printf("Second iteration: %f.", timerMark.LastTimeSeconds);
 			const ::gpk::SCoord3<float>													& lightDir									= applicationInstance.LightDirection;
+			SDrawTrianglesArgs	argsDrawTriangle = {gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped};
 			drawTriangles(gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped);
 			//timerMark.Frame(); info_printf("Third iteration: %f.", timerMark.LastTimeSeconds);
 		}
