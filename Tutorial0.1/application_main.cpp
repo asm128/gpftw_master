@@ -1,3 +1,4 @@
+#define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
 // Tip: Hold Left ALT + SHIFT while tapping or holding the arrow keys in order to select multiple columns and write on them at once. 
 //		Also useful for copy & paste operations in which you need to copy a bunch of variable or function names and you can't afford the time of copying them one by one.
 #include "application.h"
@@ -16,7 +17,7 @@
 static constexpr	const uint32_t										ASCII_SCREEN_WIDTH							= 132	;
 static constexpr	const uint32_t										ASCII_SCREEN_HEIGHT							= 50	;
 
-GPK_DEFINE_APPLICATION_ENTRY_POINT(::SApplication, "Tutorial 0");	
+GPK_DEFINE_APPLICATION_ENTRY_POINT(::SApplication, "Tutorial 0.1");	
 
 					::SApplication										* g_ApplicationInstance						= 0;
 
