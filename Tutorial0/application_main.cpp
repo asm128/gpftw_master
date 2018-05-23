@@ -95,7 +95,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	
 	error_if(errored(setupThreads(applicationInstance)), "Unknown.");
 	::gpk::SDisplay																& mainWindow								= applicationInstance.Framework.MainDisplay;
-	error_if(errored(::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail.EntryPointArgs.hInstance)), "Failed to create main window why?????!?!?!?!?");
+	error_if(errored(::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail.EntryPointArgsWin.hInstance)), "Failed to create main window why?????!?!?!?!?");
 	char																		bmpFileName2	[]							= "Codepage-437-24.bmp";
 	error_if(errored(::gpk::bmpOrBmgLoad(bmpFileName2, applicationInstance.TextureFont)), "");
 	const ::gpk::SCoord2<uint32_t>												& textureFontMetrics						= applicationInstance.TextureFont.View.metrics();

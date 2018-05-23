@@ -97,7 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME; NDEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\gpk\gpk; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -110,7 +110,7 @@
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalDependencies>llc.lib; gpk.lib; user32.lib; gdi32.lib;</AdditionalDependencies>
-      <ModuleDefinitionFile>gpk_module_exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\..\gpk\gpk\gpk_module_exports.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -118,7 +118,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME; WIN32;_DEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\gpk\gpk; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -129,7 +129,7 @@
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalDependencies>llc.lib; gpk.lib; user32.lib; gdi32.lib;</AdditionalDependencies>
-      <ModuleDefinitionFile>gpk_module_exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\..\gpk\gpk\gpk_module_exports.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -137,7 +137,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME; _DEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\gpk\gpk; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -148,7 +148,7 @@
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalDependencies>llc.lib; gpk.lib; user32.lib; gdi32.lib;</AdditionalDependencies>
-      <ModuleDefinitionFile>gpk_module_exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\..\gpk\gpk\gpk_module_exports.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,7 +158,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME; WIN32;NDEBUG;TUTORIAL01_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\gpk\gpk; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -171,7 +171,7 @@
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalDependencies>llc.lib; gpk.lib; user32.lib; gdi32.lib;</AdditionalDependencies>
-      <ModuleDefinitionFile>gpk_module_exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\..\gpk\gpk\gpk_module_exports.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -181,9 +181,6 @@
     <ClCompile Include="application_draw.cpp" />
     <ClCompile Include="application_main.cpp" />
     <ClCompile Include="application_setup.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="gpk_module_exports.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
