@@ -83,6 +83,7 @@ extern				::SApplication														* g_ApplicationInstance						;
 	wndClassToInit																			= {sizeof(::WNDCLASSEX),};
 	wndClassToInit.lpfnWndProc																= wndProc;
 	wndClassToInit.hInstance																= hInstance;
+	wndClassToInit.hIcon																	= LoadIcon	(NULL, IDC_ICON);
 	wndClassToInit.hCursor																	= LoadCursor(NULL, IDC_ARROW);
 	wndClassToInit.hbrBackground															= (::HBRUSH)(COLOR_3DFACE + 1);
 	wndClassToInit.lpszClassName															= className;
@@ -94,8 +95,9 @@ extern				::SApplication														* g_ApplicationInstance						;
 	::RegisterClassEx(&displayDetail.WindowClass);
 	mainWindow.Size																			= {::BMP_SCREEN_WIDTH, ::BMP_SCREEN_HEIGHT};
 	::RECT																						finalClientRect								= {100, 100, 100 + (LONG)mainWindow.Size.x, 100 + (LONG)mainWindow.Size.y};
-	::AdjustWindowRectEx(&finalClientRect, WS_OVERLAPPEDWINDOW, FALSE, 0);
-	mainWindow.PlatformDetail.WindowHandle													= ::CreateWindowEx(0, displayDetail.WindowClassName, TEXT("Window"), WS_OVERLAPPEDWINDOW
+	DWORD																						windowStyle									= WS_OVERLAPPEDWINDOW; //WS_POPUP;
+	::AdjustWindowRectEx(&finalClientRect, windowStyle, FALSE, 0);
+	mainWindow.PlatformDetail.WindowHandle													= ::CreateWindowEx(0, displayDetail.WindowClassName, TEXT("Window"), windowStyle
 		, finalClientRect.left
 		, finalClientRect.top
 		, finalClientRect.right		- finalClientRect.left
