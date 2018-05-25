@@ -224,24 +224,16 @@ static				::gpk::error_t										drawTriangles
 	return 0;
 }
 
-					::gpk::error_t										drawGND										(::SApplication& applicationInstance)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
-	::gpk::SFramework::TOffscreen												& offscreen									= applicationInstance.OffscreenGND.Color;
-	::gpk::STexture<uint32_t>													& offscreenDepth							= applicationInstance.OffscreenGND.DepthStencil;
+					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget& renderTargetGND)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	::gpk::SFramework::TOffscreen												& offscreen									= renderTargetGND.Color;
+	::gpk::STexture<uint32_t>													& offscreenDepth							= renderTargetGND.DepthStencil;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
-
-	::SRenderCache																& renderCache								= applicationInstance.RenderCache[0];
 
 	const ::gpk::SMatrix4<float>												& projection								= applicationInstance.Scene.Transforms.FinalProjection	;
 	const ::gpk::SMatrix4<float>												& viewMatrix								= applicationInstance.Scene.Transforms.View				;
 
-	::gpk::SMatrix4<float>														xWorld										= {};
-	xWorld.Identity();
 	const double																& fFar										= applicationInstance.Scene.Camera.Range.Far	;
 	const double																& fNear										= applicationInstance.Scene.Camera.Range.Near	;
-	uint32_t																	& pixelsDrawn								= renderCache.PixelsDrawn	= 0;
-	uint32_t																	& pixelsSkipped								= renderCache.PixelsSkipped	= 0;
-	renderCache.WireframePixelCoords.clear();
-	renderCache.TrianglesDrawn												= 0;
 	const ::gpk::SCoord2<int32_t>												offscreenMetricsI							= offscreenMetrics.Cast<int32_t>();
 	const ::gpk::SCoord3<float>													screenCenter								= {offscreenMetricsI.x / 2.0f, offscreenMetricsI.y / 2.0f, };
 	const ::gpk::SColorFloat													ambient										= 
@@ -257,41 +249,92 @@ static				::gpk::error_t										drawTriangles
 		, 1
 		};
 	::gpk::STimer																timerMark									= {};
-	for(uint32_t iGNDTexture = 0; iGNDTexture < applicationInstance.GNDData.TextureNames.size(); ++iGNDTexture) {
-		for(uint32_t iFacingDirection = 0; iFacingDirection < 6; ++iFacingDirection) {
-			const ::gpk::grid_view<::gpk::SColorBGRA>									& gndNodeTexture							= applicationInstance.TexturesGND	[iGNDTexture].View;
-			const ::gpk::SModelNodeGND													& gndNode									= applicationInstance.GNDModel.Nodes[applicationInstance.GNDData.TextureNames.size() * iFacingDirection + iGNDTexture];
-			xWorld		.Scale			(applicationInstance.GridPivot.Scale, true);
-			//xRotation	.SetOrientation	(applicationInstance.GridPivot.Orientation.Normalize());
-			//xWorld																	= xWorld * xRotation;
-			xWorld		.SetTranslation	(applicationInstance.GridPivot.Position, false);
-			::gpk::clear
-				( renderCache.Triangle3dWorld
-				, renderCache.Triangle3dToDraw		
-				, renderCache.Triangle3dIndices		
-				);
-			const ::gpk::SMatrix4<float>												xWV											= xWorld * viewMatrix;
-			transformTriangles(gndNode.VertexIndices, gndNode.Vertices, fFar, fNear, xWorld, xWV, projection, offscreenMetricsI, renderCache);
-			//timerMark.Frame(); info_printf("First iteration: %f.", timerMark.LastTimeSeconds);
-			gpk_necall(renderCache.TransformedNormalsVertex.resize(renderCache.Triangle3dIndices.size()), "Out of memory?");
-			transformNormals(gndNode.VertexIndices, gndNode.Normals, xWorld, renderCache);
-			//timerMark.Frame(); info_printf("Second iteration: %f.", timerMark.LastTimeSeconds);
-			const ::gpk::SCoord3<float>													& lightDir									= applicationInstance.LightDirection;
-			SDrawTrianglesArgs	argsDrawTriangle = {gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped};
-			drawTriangles(gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped);
-			//timerMark.Frame(); info_printf("Third iteration: %f.", timerMark.LastTimeSeconds);
+	applicationInstance.RenderCaches.resize(applicationInstance.GNDData.TextureNames.size() * 6);
+	for(uint32_t iCache=0; iCache<applicationInstance.RenderCaches.size(); ++iCache)
+		if(0 == applicationInstance.RenderCaches[iCache])
+			applicationInstance.RenderCaches[iCache].create();
+
+	::gpk::SMatrix4<float>														xWorld										= {};
+	xWorld.Identity();
+	xWorld		.Scale			(applicationInstance.GridPivot.Scale, true);
+	//xRotation	.SetOrientation	(applicationInstance.GridPivot.Orientation.Normalize());
+	//xWorld																	= xWorld * xRotation;
+	xWorld		.SetTranslation	(applicationInstance.GridPivot.Position, false);
+	::gpk::STimer																benchTimer0;
+	benchTimer0.Frame();
+	//info_printf("Draw frame 1 step 0: %f.", benchTimer0.LastTimeSeconds);
+	{
+		uint32_t																	iCache										= 0;
+		for(uint32_t iGNDTexture = 0; iGNDTexture < applicationInstance.GNDData.TextureNames.size(); ++iGNDTexture) {
+			for(uint32_t iFacingDirection = 0; iFacingDirection < 6; ++iFacingDirection) {
+				::gpk::ptr_obj<::SRenderCache>												& actualRenderCache							= applicationInstance.RenderCaches[iCache++];
+				::SRenderCache																& renderCache0								= *actualRenderCache;//applicationInstance.RenderCache[0];
+				::gpk::clear
+					( renderCache0.Triangle3dWorld
+					, renderCache0.Triangle3dToDraw		
+					, renderCache0.Triangle3dIndices		
+					);
+			}
+		}
+	}
+	benchTimer0.Frame();
+	//info_printf("Draw frame 1 step 1: %f.", benchTimer0.LastTimeSeconds);
+	{
+		mutex_guard																	lock										(applicationInstance.UpdateLock);
+		uint32_t																	iCache										= 0;
+		for(uint32_t iGNDTexture = 0; iGNDTexture < applicationInstance.GNDData.TextureNames.size(); ++iGNDTexture) {
+			for(uint32_t iFacingDirection = 0; iFacingDirection < 6; ++iFacingDirection) {
+				const ::gpk::SModelNodeGND													& gndNode									= applicationInstance.GNDModel.Nodes[applicationInstance.GNDData.TextureNames.size() * iFacingDirection + iGNDTexture];
+				::gpk::ptr_obj<::SRenderCache>												& actualRenderCache							= applicationInstance.RenderCaches[iCache++];
+				::SRenderCache																& renderCache0								= *actualRenderCache;//applicationInstance.RenderCache[0];
+				const ::gpk::SMatrix4<float>												xWV											= xWorld * viewMatrix;
+				transformTriangles(gndNode.VertexIndices, gndNode.Vertices, fFar, fNear, xWorld, xWV, projection, offscreenMetricsI, renderCache0);
+				//timerMark.Frame(); info_printf("First iteration: %f.", timerMark.LastTimeSeconds);
+			}
+		}
+	}	
+		
+	benchTimer0.Frame();
+	info_printf("Draw frame 1 step 2: %f.", benchTimer0.LastTimeSeconds);
+	{ // unlocked
+		uint32_t																	iCache										= 0;
+		for(uint32_t iGNDTexture = 0; iGNDTexture < applicationInstance.GNDData.TextureNames.size(); ++iGNDTexture) {
+			for(uint32_t iFacingDirection = 0; iFacingDirection < 6; ++iFacingDirection) {
+				const ::gpk::SModelNodeGND													& gndNode									= applicationInstance.GNDModel.Nodes[applicationInstance.GNDData.TextureNames.size() * iFacingDirection + iGNDTexture];
+				const ::gpk::grid_view<::gpk::SColorBGRA>									& gndNodeTexture							= applicationInstance.TexturesGND	[iGNDTexture].View;
+				::SRenderCache																& renderCache1								= *applicationInstance.RenderCaches[iCache++];//applicationInstance.RenderCache[0];
+				gpk_necall(renderCache1.TransformedNormalsVertex.resize(renderCache1.Triangle3dIndices.size()), "Out of memory?");
+				transformNormals(gndNode.VertexIndices, gndNode.Normals, xWorld, renderCache1);
+				//timerMark.Frame(); info_printf("Second iteration: %f.", timerMark.LastTimeSeconds);
+				const ::gpk::SCoord3<float>													& lightDir									= applicationInstance.LightDirection;
+				uint32_t																	& pixelsDrawn								= renderCache1.PixelsDrawn	= 0;
+				uint32_t																	& pixelsSkipped								= renderCache1.PixelsSkipped	= 0;
+				renderCache1.WireframePixelCoords.clear();
+				renderCache1.TrianglesDrawn												= 0;
+
+				//SDrawTrianglesArgs	argsDrawTriangle = {gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped};
+				drawTriangles(gndNode.VertexIndices, gndNode.Vertices, gndNode.UVs, gndNodeTexture, fFar, fNear, lightDir, renderCache1, offscreenDepth.View, offscreen.View, diffuse, ambient, applicationInstance.RSWData.RSWLights, &pixelsDrawn, &pixelsSkipped);
+				//timerMark.Frame(); info_printf("Third iteration: %f.", timerMark.LastTimeSeconds);
+			}
 		}
 	}
 
-	static constexpr const ::gpk::SColorBGRA									color										= ::gpk::YELLOW;
-	for(uint32_t iPixel = 0, pixCount = renderCache.WireframePixelCoords.size(); iPixel < pixCount; ++iPixel) {
-		const ::gpk::SCoord2<int32_t>												& pixelCoord								= renderCache.WireframePixelCoords[iPixel];
-		if( offscreen.View[pixelCoord.y][pixelCoord.x] != color ) {
-			offscreen.View[pixelCoord.y][pixelCoord.x]								= color;
-			++pixelsDrawn;
+	benchTimer0.Frame();
+	info_printf("Draw frame 1 step 3: %f.", benchTimer0.LastTimeSeconds);
+	for(uint32_t  iCache = 0, countCaches = applicationInstance.RenderCaches.size(); iCache < countCaches; ++iCache) {
+		::SRenderCache																& renderCache0								= *applicationInstance.RenderCaches[iCache];//applicationInstance.RenderCache[0];
+		uint32_t																	& pixelsDrawn								= renderCache0.PixelsDrawn	= 0;
+		uint32_t																	& pixelsSkipped								= renderCache0.PixelsSkipped	= 0;
+		static constexpr const ::gpk::SColorBGRA									color										= ::gpk::YELLOW;
+		for(uint32_t iPixel = 0, pixCount = renderCache0.WireframePixelCoords.size(); iPixel < pixCount; ++iPixel) {
+			const ::gpk::SCoord2<int32_t>												& pixelCoord								= renderCache0.WireframePixelCoords[iPixel];
+			if( offscreen.View[pixelCoord.y][pixelCoord.x] != color ) {
+				offscreen.View[pixelCoord.y][pixelCoord.x]								= color;
+				++pixelsDrawn;
+			}
+			else
+				++pixelsSkipped;
 		}
-		else
-			++pixelsSkipped;
 	}
-	return (::gpk::error_t)pixelsDrawn;
+	return (::gpk::error_t)0;
 }

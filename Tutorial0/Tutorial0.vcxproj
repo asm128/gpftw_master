@@ -48,9 +48,13 @@
     <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'"><LinkIncremental>true</LinkIncremental></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'"><LinkIncremental>false</LinkIncremental></PropertyGroup>
-  <ItemDefinitionGroup >
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
@@ -105,7 +109,6 @@
   <ItemGroup>
     <ClCompile Include="application_draw.cpp" />
     <ClCompile Include="application_main.cpp" />
-    <ClCompile Include="application_setup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />

@@ -22,7 +22,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::SApplication, "Tutorial 0");
 
 static				::gpk::error_t										updateSizeDependentResources				(::SApplication& applicationInstance)											{ 
 	const ::gpk::SCoord2<uint32_t>												newSize										= applicationInstance.Framework.MainDisplay.Size;// / 2; 
-	::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= applicationInstance.Framework.MainDisplayOffscreen.Color;
+	::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= applicationInstance.Framework.MainDisplayOffscreen->Color;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 	if(newSize != offscreenMetrics) {
 		::gpk::SMatrix4<float>														& finalProjection							= applicationInstance.Scene.Transforms.FinalProjection	;
@@ -40,19 +40,16 @@ static				::gpk::error_t										updateSizeDependentResources				(::SApplicatio
 		finalProjection															= fieldOfView * viewportInverseCentered;
 		applicationInstance.Scene.Transforms.FinalProjectionInverse				= finalProjection.GetInverse();
 	}
-	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.Framework.MainDisplayOffscreen.Color		, newSize), "??");
-	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.Framework.MainDisplayOffscreen.DepthStencil	, newSize), "??");
-	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.OffscreenGND.Color							, newSize), "??");
-	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.OffscreenGND.DepthStencil					, newSize), "??");
+	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.Framework.MainDisplayOffscreen->Color			, newSize), "??");
+	gpk_necall(::gpk::updateSizeDependentTarget(applicationInstance.Framework.MainDisplayOffscreen->DepthStencil	, newSize), "??");
 	return 0;
 }
 // --- Cleanup application resources.
 					::gpk::error_t										cleanup										(::SApplication& applicationInstance)											{
-	::gpk::SDisplayPlatformDetail												& displayDetail								= applicationInstance.Framework.MainDisplay.PlatformDetail;
-	if(displayDetail.WindowHandle) {
-		error_if(0 == ::DestroyWindow(displayDetail.WindowHandle), "Not sure why would this fail.");
-		error_if(errored(::gpk::displayUpdate(applicationInstance.Framework.MainDisplay)), "Not sure why this would fail");
-	}
+	::gpk::SDisplay																& displayMain								= applicationInstance.Framework.MainDisplay;
+	::gpk::SDisplayPlatformDetail												& displayDetail								= displayMain.PlatformDetail;
+	if(displayDetail.WindowHandle) 
+		::gpk::mainWindowDestroy(displayMain);
 	::UnregisterClass(displayDetail.WindowClassName, displayDetail.WindowClass.hInstance);
 	bool																		waiting										= true;
 	for(uint32_t iThread = 0, threadCount = ::gpk::size(applicationInstance.Threads.Handles); iThread < threadCount; ++iThread) 
@@ -71,31 +68,31 @@ static				::gpk::error_t										updateSizeDependentResources				(::SApplicatio
 	return 0;
 }
 
-static				void												myThread									(void* _applicationThreads)														{
-	::SThreadArgs																& threadArgs								= *(::SThreadArgs*)_applicationThreads;
-	::SApplicationThreads														& applicationThreads						= *threadArgs.ApplicationThreads;
-	int32_t																		threadId									= threadArgs.ThreadId;
-	while(false == applicationThreads.States[threadId].RequestedClose) {
-		Sleep(10);
-	}
-	applicationThreads.States[threadId].Closed								= true;
-}
+//static				void												myThread									(void* _applicationThreads)														{
+//	::SThreadArgs																& threadArgs								= *(::SThreadArgs*)_applicationThreads;
+//	::SApplicationThreads														& applicationThreads						= *threadArgs.ApplicationThreads;
+//	int32_t																		threadId									= threadArgs.ThreadId;
+//	while(false == applicationThreads.States[threadId].RequestedClose) {
+//		Sleep(10);
+//	}
+//	applicationThreads.States[threadId].Closed								= true;
+//}
 
 static				::gpk::error_t										setupThreads								(::SApplication& applicationInstance)													{
 	for(uint32_t iThread = 0, threadCount = ::gpk::size(applicationInstance.Threads.Handles); iThread < threadCount; ++iThread) {
-		applicationInstance.Threads.States	[iThread]							= {true,};									
-		applicationInstance.Threads.Handles	[iThread]							= _beginthread(myThread, 0, &(applicationInstance.ThreadArgs[iThread] = {&applicationInstance.Threads, (int32_t)iThread, &applicationInstance}));
+		applicationInstance.Threads.States	[iThread]							= {false, true, true};//{true,};									
+		applicationInstance.Threads.Handles	[iThread]							= 0;//_beginthread(myThread, 0, &(applicationInstance.ThreadArgs[iThread] = {&applicationInstance.Threads, (int32_t)iThread, &applicationInstance}));
 	}
 	return 0;
 }
 
-					::gpk::error_t										mainWindowCreate							(::gpk::SDisplay& mainWindow, HINSTANCE hInstance);
 					::gpk::error_t										setup										(::SApplication& applicationInstance)													{
 	g_ApplicationInstance													= &applicationInstance;
 	
 	error_if(errored(setupThreads(applicationInstance)), "Unknown.");
 	::gpk::SDisplay																& mainWindow								= applicationInstance.Framework.MainDisplay;
-	error_if(errored(::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail.EntryPointArgsWin.hInstance)), "Failed to create main window why?????!?!?!?!?");
+	applicationInstance.Framework.Input.create();
+	error_if(errored(::gpk::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail, applicationInstance.Framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	char																		bmpFileName2	[]							= "Codepage-437-24.bmp";
 	error_if(errored(::gpk::bmpOrBmgLoad(bmpFileName2, applicationInstance.TextureFont)), "");
 	const ::gpk::SCoord2<uint32_t>												& textureFontMetrics						= applicationInstance.TextureFont.View.metrics();
@@ -187,16 +184,30 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	blendGNDNormals(tileGeometryView, gndData.lstTileTextureData, applicationInstance.GNDModel.TileMapping.View, applicationInstance.GNDModel.Nodes); // Blend normals.
 
 	ree_if(errored(::updateSizeDependentResources(applicationInstance)), "Cannot update offscreen and textures and this could cause an invalid memory access later on.");
-	applicationInstance.Scene.Camera.Points.Position						= {0, 30, 20};
+	applicationInstance.Scene.Camera.Points.Position						= {0, 30, -20};
 	applicationInstance.Scene.Camera.Range.Far								= 1000;
 	applicationInstance.Scene.Camera.Range.Near								= 0.001;
 	return 0;
 }
 
 					::gpk::error_t										update										(::SApplication& applicationInstance, bool systemRequestedExit)					{ 
+	//::gpk::STimer																benchTimer;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
 	::gpk::SFrameInfo															& frameInfo									= framework.FrameInfo;
 	retval_info_if(1, systemRequestedExit, "Exiting because the runtime asked for close. We could also ignore this value and just continue execution if we don't want to exit.");
+	{
+		mutex_guard																	lock										(applicationInstance.RenderLock);
+		if(applicationInstance.RenderTargets.size()) {
+			if(applicationInstance.RenderTargets.size() > 1)
+				warning_printf("2 Buffers have been rendered.");
+			::gpk::ptr_obj<::gpk::SRenderTarget>										renderTarget								= applicationInstance.RenderTargets[applicationInstance.RenderTargets.size() - 1];
+			if(renderTarget->Color.View.metrics() == framework.MainDisplay.Size)
+				framework.MainDisplayOffscreen											= renderTarget;
+			applicationInstance.RenderTargets.resize(0);
+		}
+		//else
+		//	warning_printf("No frames rendered.");
+	}
 	::gpk::error_t																frameworkResult								= ::gpk::updateFramework(applicationInstance.Framework);
 	ree_if(errored(frameworkResult), "Unknown error.");
 	rvi_if(1, frameworkResult == 1, "Framework requested close. Terminating execution.");
@@ -204,10 +215,11 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 
 	//----------------------------------------------
 	bool																		updateProjection							= false;
-	if(framework.Input.KeyboardCurrent.KeyState[VK_ADD		])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle += frameInfo.Seconds.LastFrame * .05f; }
-	if(framework.Input.KeyboardCurrent.KeyState[VK_SUBTRACT	])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle -= frameInfo.Seconds.LastFrame * .05f; }
+	::gpk::SInput																& input										= *framework.Input;
+	if(input.KeyboardCurrent.KeyState[VK_ADD		])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle += frameInfo.Seconds.LastFrame * .05f; }
+	if(input.KeyboardCurrent.KeyState[VK_SUBTRACT	])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle -= frameInfo.Seconds.LastFrame * .05f; }
 	if(updateProjection) {
-		::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= framework.MainDisplayOffscreen.Color;
+		::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= framework.MainDisplayOffscreen->Color;
 		const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 
 		::gpk::SMatrix4<float>														& finalProjection							= applicationInstance.Scene.Transforms.FinalProjection	;
@@ -215,34 +227,42 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 		::gpk::SMatrix4<float>														& viewport									= applicationInstance.Scene.Transforms.Viewport			;
 		::gpk::SMatrix4<float>														& viewportInverse							= applicationInstance.Scene.Transforms.ViewportInverse	;
 		::gpk::SMatrix4<float>														& viewportInverseCentered					= applicationInstance.Scene.Transforms.ViewportInverse	;
-		fieldOfView.FieldOfView(applicationInstance.Scene.Camera.Range.Angle * ::gpk::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, applicationInstance.Scene.Camera.Range.Near, applicationInstance.Scene.Camera.Range.Far);
-		viewport.Viewport(offscreenMetrics, applicationInstance.Scene.Camera.Range.Far, applicationInstance.Scene.Camera.Range.Near);
-		viewportInverse															= viewport.GetInverse();
-		const ::gpk::SCoord2<int32_t>												screenCenter								= {(int32_t)offscreenMetrics.x / 2, (int32_t)offscreenMetrics.y / 2};
-		viewportInverseCentered													= viewportInverse;
-		viewportInverseCentered._41												+= screenCenter.x;
-		viewportInverseCentered._42												+= screenCenter.y;
-		finalProjection															= fieldOfView * viewportInverseCentered;
-		applicationInstance.Scene.Transforms.FinalProjectionInverse				= finalProjection.GetInverse();
+		{
+			mutex_guard																	lock										(applicationInstance.UpdateLock);
+			fieldOfView.FieldOfView(applicationInstance.Scene.Camera.Range.Angle * ::gpk::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, applicationInstance.Scene.Camera.Range.Near, applicationInstance.Scene.Camera.Range.Far);
+			viewport.Viewport(offscreenMetrics, applicationInstance.Scene.Camera.Range.Far, applicationInstance.Scene.Camera.Range.Near);
+			viewportInverse															= viewport.GetInverse();
+			const ::gpk::SCoord2<int32_t>												screenCenter								= {(int32_t)offscreenMetrics.x / 2, (int32_t)offscreenMetrics.y / 2};
+			viewportInverseCentered													= viewportInverse;
+			viewportInverseCentered._41												+= screenCenter.x;
+			viewportInverseCentered._42												+= screenCenter.y;
+			finalProjection															= fieldOfView * viewportInverseCentered;
+			applicationInstance.Scene.Transforms.FinalProjectionInverse				= finalProjection.GetInverse();
+		}
 	}
 
 	//------------------------------------------------ Camera
-	::gpk::SCameraPoints														& camera									= applicationInstance.Scene.Camera.Points;
-	camera.Position.RotateY(framework.Input.MouseCurrent.Deltas.x / 20.0f / (applicationInstance.Framework.Input.KeyboardCurrent.KeyState[VK_CONTROL] ? 2.0 : 1));
-	if(framework.Input.MouseCurrent.Deltas.z) {
-		::gpk::SCoord3<float>														zoomVector									= camera.Position;
-		zoomVector.Normalize();
-		const double																zoomWeight									= framework.Input.MouseCurrent.Deltas.z * (applicationInstance.Framework.Input.KeyboardCurrent.KeyState[VK_SHIFT] ? 10 : 1) / 240.;
-		camera.Position															+= zoomVector * zoomWeight * .5;
+		::gpk::SCameraPoints														newCamera									= applicationInstance.Scene.Camera.Points;
+		newCamera.Position.RotateY(input.MouseCurrent.Deltas.x / 20.0f / (input.KeyboardCurrent.KeyState[VK_CONTROL] ? 2.0 : 1));
+		if(input.MouseCurrent.Deltas.z) {
+			::gpk::SCoord3<float>														zoomVector									= newCamera.Position;
+			zoomVector.Normalize();
+			const double																zoomWeight									= input.MouseCurrent.Deltas.z * (input.KeyboardCurrent.KeyState[VK_SHIFT] ? 10 : 1) / 240.;
+			newCamera.Position															+= zoomVector * zoomWeight * .5;
+		}
+		applicationInstance.Scene.Camera.Points										= newCamera;
+		::gpk::SMatrix4<float>														& viewMatrix								= applicationInstance.Scene.Transforms.View;
+		::gpk::SCameraVectors														newCameraVectors							= applicationInstance.Scene.Camera.Vectors;
+		newCameraVectors.Up														= {0, 1, 0};
+		newCameraVectors.Front													= (newCamera.Target - newCamera.Position).Normalize();
+		newCameraVectors.Right													= newCameraVectors.Up		.Cross(newCameraVectors.Front	).Normalize();
+		newCameraVectors.Up														= newCameraVectors.Front	.Cross(newCameraVectors.Right	).Normalize();
+		applicationInstance.Scene.Camera.Vectors								= newCameraVectors;
+	{
+		mutex_guard																	lock										(applicationInstance.UpdateLock);
+		viewMatrix.View3D(newCamera.Position, newCameraVectors.Right, newCameraVectors.Up, newCameraVectors.Front);
 	}
-	::gpk::SMatrix4<float>														& viewMatrix								= applicationInstance.Scene.Transforms.View;
-	::gpk::SCameraVectors														& cameraVectors								= applicationInstance.Scene.Camera.Vectors;
-	cameraVectors.Up														= {0, 1, 0};
-	cameraVectors.Front														= (camera.Target - camera.Position).Normalize();
-	cameraVectors.Right														= cameraVectors.Up		.Cross(cameraVectors.Front	).Normalize();
-	cameraVectors.Up														= cameraVectors.Front	.Cross(cameraVectors.Right	).Normalize();
-	viewMatrix.View3D(camera.Position, cameraVectors.Right, cameraVectors.Up, cameraVectors.Front);
-	//const ::gpk::SCoord2<uint32_t>												& gndDataMetrics							= applicationInstance.GNDData.Metrics.Size;
+	//const	::gpk::SCoord2<uint32_t>												& gndDataMetrics							= applicationInstance.GNDData.Metrics.Size;
 	//viewMatrix.LookAt(camera.Position, {(gndDataMetrics.x / 2.0f), 0, -(gndDataMetrics.y / 2.0f)}, {0, 1, 0});
 
 	//------------------------------------------------ Lights
@@ -253,9 +273,11 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	::gpk::SRSWFileContents														& rswData									= applicationInstance.RSWData;
 	const ::gpk::SCoord3<float>													halfMapDir									= ::gpk::SCoord3<float>{applicationInstance.GNDData.Metrics.Size.x / 2.0f, 0.0f, (applicationInstance.GNDData.Metrics.Size.y / 2.0f)};
 	for(uint32_t iLight = 0; iLight < rswData.RSWLights.size(); ++iLight) {
-		rswData.RSWLights[iLight].Position										-= halfMapDir;
-		rswData.RSWLights[iLight].Position.RotateY(frameInfo.Seconds.LastFrame);
-		rswData.RSWLights[iLight].Position										+= halfMapDir;
+		::gpk::SCoord3<float>														newLightPos									= rswData.RSWLights[iLight].Position;
+		newLightPos																-= halfMapDir;
+		newLightPos.RotateY(frameInfo.Seconds.LastFrame);
+		newLightPos																+= halfMapDir;
+		rswData.RSWLights[iLight].Position										= newLightPos;
 	}
 	//------------------------------------------------ 
 	//applicationInstance.GridPivot.Scale										= {2.f, 4.f, 2.f};
@@ -264,50 +286,83 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//applicationInstance.GridPivot.Orientation.w								= 1;
 	//applicationInstance.GridPivot.Orientation.Normalize();
 	//applicationInstance.GridPivot.Position									= {applicationInstance.GNDData.Metrics.Size.x / 2.0f * -1, 0, applicationInstance.GNDData.Metrics.Size.y / 2.0f * -1};
+	//benchTimer.Frame();
+	//info_printf("Update frame: %f.", benchTimer.LastTimeSeconds);
 	return 0;
 }
 
-					::gpk::error_t										drawGND										(::SApplication& applicationInstance);
+					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget& renderTargetGND);
 
 					::gpk::error_t										draw										(::SApplication& applicationInstance)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	//::gpk::STimer																benchTimer;
+	//::gpk::STimer																benchTimer0;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
-	::gpk::clearTarget(applicationInstance.OffscreenGND);
-	::gpk::clearTarget(framework.MainDisplayOffscreen);
-	::gpk::SFramework::TOffscreen												& offscreen									= framework.MainDisplayOffscreen.Color;
+	const ::gpk::grid_view<::gpk::SColorBGRA>									& fontAtlasView								= applicationInstance.TextureFont.View;
+	::gpk::SRenderTarget														newRenderTargetGND							= {};
+	::gpk::ptr_obj<::gpk::SRenderTarget>										newRenderTargetComposite					= {};
+	{
+		const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= framework.MainDisplay.Size;
+		newRenderTargetGND		.Color			.resize(offscreenMetrics);
+		newRenderTargetGND		.DepthStencil	.resize(offscreenMetrics);
+		newRenderTargetComposite->Color			.resize(offscreenMetrics);
+		newRenderTargetComposite->DepthStencil	.resize(offscreenMetrics);
+	}
+	::gpk::clearTarget(newRenderTargetGND);
+	::gpk::clearTarget(*newRenderTargetComposite);
+	::gpk::SFramework::TOffscreen												& offscreen									= newRenderTargetComposite->Color;
+	::gpk::grid_view<::gpk::SColorBGRA>											& offscreenView								= offscreen.View;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 	for(uint32_t y = 0, yMax = offscreenMetrics.y; y < yMax; ++y) {	// Draw background gradient.
 		const uint8_t																colorHeight									= (uint8_t)(y / 10);
 		for(uint32_t x = 0, xMax = offscreenMetrics.x; x < xMax; ++x)
 			offscreen.View[y][x]													= {colorHeight, 0, 0, 0xFF};
 	}
-	int32_t 																	pixelsDrawn1								= drawGND(applicationInstance); 
+	//benchTimer0.Frame();
+	//info_printf("Draw frame 0 step 0: %f.", benchTimer0.LastTimeSeconds);
+
+	int32_t 																	pixelsDrawn1								= 0;
+	//{
+	//	mutex_guard																	lock										(applicationInstance.UpdateLock);
+		pixelsDrawn1															= drawGND(applicationInstance, newRenderTargetGND); 
+	//}
+	//benchTimer0.Frame();
+	//info_printf("Draw frame 0 step 1: %f.", benchTimer0.LastTimeSeconds);
+
+
 	error_if(errored(pixelsDrawn1), "??");
-	for(uint32_t y = 0, yMax = applicationInstance.OffscreenGND.Color.View.metrics().y; y < yMax; ++y) 
-		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), applicationInstance.OffscreenGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
+	for(uint32_t y = 0, yMax = newRenderTargetGND.Color.View.metrics().y; y < yMax; ++y) 
+		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), newRenderTargetGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
+	const ::gpk::grid_view<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;
+	::gpk::grid_copy(offscreenView, minimapView, ::gpk::SCoord2<int32_t>{(int32_t)(offscreenMetrics.x - minimapView.metrics().x), 0});
 
 	static constexpr const ::gpk::SCoord2<int32_t>								sizeCharCell								= {9, 16};
 	uint32_t																	lineOffset									= 0;
 	static constexpr const char													textLine2	[]								= "Press ESC to exit.";
-	::gpk::grid_view<::gpk::SColorBGRA>											& offscreenView								= offscreen.View;
-	const ::gpk::grid_view<::gpk::SColorBGRA>									& fontAtlasView								= applicationInstance.TextureFont.View;
 	const ::gpk::SColorBGRA														textColor									= {0, framework.FrameInfo.FrameNumber % 0xFFU, 0, 0xFFU};
 	::gpk::textLineDrawAlignedFixedSizeLit(offscreenView, applicationInstance.TextureFontMonochrome.View, fontAtlasView.metrics(), lineOffset = offscreenMetrics.y / sizeCharCell.y - 1, offscreenMetrics, sizeCharCell, textLine2, textColor);
+
 	::gpk::STimer																& timer										= applicationInstance.Framework.Timer;
 	::gpk::SDisplay																& mainWindow								= applicationInstance.Framework.MainDisplay;
-	char																		buffer		[256]							= {};
-
-	const ::gpk::grid_view<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;
-	::gpk::grid_copy(offscreenView, minimapView, ::gpk::SCoord2<int32_t>{(int32_t)(offscreenMetrics.x - minimapView.metrics().x), 0});
-
 	const ::gpk::SGNDFileContents												& gndData									= applicationInstance.GNDData;
 	const ::gpk::SRSWFileContents												& rswData									= applicationInstance.RSWData;
 	const ::SRenderCache														& renderCache								= applicationInstance.RenderCache[0];
+	char																		buffer		[256]							= {};
 	uint32_t
 
 	textLen																	= (uint32_t)sprintf_s(buffer, "[%u x %u]. FPS: %g. Last frame seconds: %g."					, mainWindow.Size.x, mainWindow.Size.y, 1 / timer.LastTimeSeconds, timer.LastTimeSeconds);							::gpk::textLineDrawAlignedFixedSizeRGBA(offscreenView, fontAtlasView, --lineOffset, offscreenMetrics, sizeCharCell, {buffer, textLen});
 	textLen																	= (uint32_t)sprintf_s(buffer, "Triangles drawn: %u. Pixels drawn: %u. Pixels skipped: %u."	, (uint32_t)renderCache.TrianglesDrawn, (uint32_t)renderCache.PixelsDrawn, (uint32_t)renderCache.PixelsSkipped);	::gpk::textLineDrawAlignedFixedSizeRGBA(offscreenView, fontAtlasView, --lineOffset, offscreenMetrics, sizeCharCell, {buffer, textLen});
 	textLen																	= (uint32_t)sprintf_s(buffer, "Tile grid size: {x=%u, z=%u}. Dynamic light count: %u."		, gndData.Metrics.Size.x, gndData.Metrics.Size.y, rswData.RSWLights.size());										::gpk::textLineDrawAlignedFixedSizeRGBA(offscreenView, fontAtlasView, --lineOffset, offscreenMetrics, sizeCharCell, {buffer, textLen});
+
+	{
+		mutex_guard																lock										(applicationInstance.RenderLock);
+		applicationInstance.RenderTargets.push_back(newRenderTargetComposite);
+	}
+	//benchTimer0.Frame();
+	//info_printf("Draw frame 0 step 2: %f.", benchTimer0.LastTimeSeconds);
 	//::textDrawAlignedFixedSize(offscreenView, applicationInstance.TextureFontMonochrome.View, fontAtlasView.metrics(), --lineOffset, offscreenMetrics, sizeCharCell, {buffer, textLen}, textColor);
+
+	//benchTimer.Frame();
+	//info_printf("Draw frame: %f.", benchTimer.LastTimeSeconds);
 	return 0;																																																
 }
 		
