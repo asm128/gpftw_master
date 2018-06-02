@@ -13,7 +13,7 @@
 #ifndef APPLICATION_H_098273498237423
 #define APPLICATION_H_098273498237423
 
-static constexpr const uint32_t														RENDER_THREAD_COUNT					= 4;
+static constexpr	const uint32_t													RENDER_THREAD_COUNT					= 4;
 
 struct STiledTerrainCounters {
 						uint32_t														nBaseTileCount						;	// Base tile count is equal to (tile map width*tile map depth)
@@ -130,7 +130,7 @@ struct SApplication {
 																						SApplication						(::gpk::SRuntimeValues& runtimeValues)			noexcept	: Framework(runtimeValues) {}
 };
 
-typedef ::std::lock_guard<::std::mutex>		mutex_guard;
+typedef				::std::lock_guard<::std::mutex>									mutex_guard;
 
 
 #endif // APPLICATION_H_098273498237423
