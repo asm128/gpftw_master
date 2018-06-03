@@ -20,25 +20,40 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	newMenuItem.IdControl													= ::gpk::controlCreate(gui);
 	{
 		gpk_necall(newMenuItem.IdControl, "Failed to create control! Out of memory?");
-		//::gpk::SControl																& control					= gui.Controls.Controls		[newMenuItem.IdControl];
+		::gpk::SControl																& control					= gui.Controls.Controls		[newMenuItem.IdControl];
 		::gpk::SControlText															& controlText				= gui.Controls.Text			[newMenuItem.IdControl];
 		::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[newMenuItem.IdControl];
 		const int32_t																idControlParent				= (menu.Items.size() > (uint32_t)idParent) ? menu.Items[idParent].IdControl : menu.IdControl;
 		::gpk::controlSetParent(gui, newMenuItem.IdControl, idControlParent);
+		control.Margin															= {2, 2, 2, 2};
+		control.Area															= {{}, {24, 24}};
 		controlText			.Text												= {text.begin(), text.size()};
+		controlText			.Align												= ::gpk::ALIGN_CENTER_LEFT;
 		controlConstraints	.AttachSizeToText.x									= true;
 		if(newMenuItem.IdParent != -1) {
 			ree_if(menu.Items.size() <= (uint32_t)newMenuItem.IdParent, "Invalid parent id."); 
 			if(0 < menu.Children[newMenuItem.IdParent].size()) {
 				const int32_t																idPreviousChild				= menu.Children[newMenuItem.IdParent].size() - 1;
 				switch(menu.Orientation) {
-				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
-				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
+				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
+				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
 				}
 			}
 		}
+		else if(0 < menu.Items.size()) {
+			const int32_t																idPreviousChild				= menu.Items.size() - 1;
+			switch(menu.Orientation) {	
+			case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
+			case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
+			}
+		}
+
+
 	}
-	text;
+	int32_t																		newIndex					= menu.Items.push_back(newMenuItem);
+	if(newMenuItem.IdParent != -1)
+		menu.Children[newMenuItem.IdParent].push_back(newIndex);
+
 	return 0;
 }
 
