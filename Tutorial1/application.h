@@ -9,24 +9,19 @@
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
 #pragma pack(push, 1)
-	struct SMenuItem {
-		int32_t											IdControl;
-		int32_t											IdParent ;
-	};
-
 	enum MENU_ORIENTATION : int32_t 
 		{	MENU_ORIENTATION_HORIZONTAL	= 1
 		,	MENU_ORIENTATION_VERTICAL	= 2
 		};
 
-	struct SMenu {
-		int32_t											IdControl							= -1;
-		MENU_ORIENTATION								Orientation							= MENU_ORIENTATION_HORIZONTAL;
-		::gpk::array_pod<SMenuItem>						Items								= {};
-		::gpk::array_obj<::gpk::array_pod<int32_t>>		Children							= {};
+	struct SOptionList {
+		int32_t											IdControl								= -1;
+		MENU_ORIENTATION								Orientation								= ::gme::MENU_ORIENTATION_HORIZONTAL;
+		::gpk::array_pod<int32_t>						IdControls								= {};
+		::gpk::array_pod<int32_t>						IdSelected								= {};
 	};
 
-	::gpk::error_t									addMenuItem							(::gpk::SGUI& gui, SMenu& menu, const ::gpk::view_const_string& text, int32_t idParent);
+	::gpk::error_t									optionListPush							(::gpk::SGUI& gui, ::gme::SOptionList& menu, const ::gpk::view_const_string& text);
 #pragma pack(pop)
 
 	struct SApplication {
@@ -34,7 +29,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
 
 		int32_t											IdExit								= -1;
-		SMenu											Menu								= {};
+		::gme::SOptionList								OptionList							= {};
 
 		::std::mutex									LockGUI;
 		::std::mutex									LockRender;
