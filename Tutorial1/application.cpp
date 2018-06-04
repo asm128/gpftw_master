@@ -23,8 +23,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	control				.Margin												= {4, 4, 4, 4};
 	controlText			.Text												= {text.begin(), text.size()};
 	controlText			.Align												= ::gpk::ALIGN_CENTER_LEFT;
-	controlConstraints	.AttachSizeToText.x									= true; // menu.Orientation == ::gme::MENU_ORIENTATION_VERTICAL	;
-	controlConstraints	.AttachSizeToText.y									= true; // menu.Orientation == ::gme::MENU_ORIENTATION_HORIZONTAL;
+	controlConstraints	.AttachSizeToText.y									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_VERTICAL	;
+	controlConstraints	.AttachSizeToText.x									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_HORIZONTAL;
 	switch(menu.Orientation) {	
 	case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.AttachSizeToControl.y = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.x = menu.IdControls[menu.IdControls.size() - 1]; break;
 	case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.AttachSizeToControl.x = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.y = menu.IdControls[menu.IdControls.size() - 1]; break;
@@ -42,6 +42,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	/*int32_t firstOption = */
 	::optionListInitialize(gui, app.OptionListMain);
 	int32_t																		idOptionList0				= app.OptionListMain.IdControl;
+	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, 22}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Modes		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
