@@ -25,7 +25,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[newMenuItem.IdControl];
 		const int32_t																idControlParent				= (menu.Items.size() > (uint32_t)idParent) ? menu.Items[idParent].IdControl : menu.IdControl;
 		::gpk::controlSetParent(gui, newMenuItem.IdControl, idControlParent);
-		control.Margin															= {2, 2, 2, 2};
+		control.Margin															= {4, 4, 4, 4};
 		control.Area															= {{}, {24, 24}};
 		controlText			.Text												= {text.begin(), text.size()};
 		controlText			.Align												= ::gpk::ALIGN_CENTER_LEFT;
@@ -33,51 +33,54 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		if(newMenuItem.IdParent != -1) {
 			ree_if(menu.Items.size() <= (uint32_t)newMenuItem.IdParent, "Invalid parent id."); 
 			if(0 < menu.Children[newMenuItem.IdParent].size()) {
-				const int32_t																idPreviousChild				= menu.Children[newMenuItem.IdParent].size() - 1;
+				const ::gpk::array_pod<int32_t>												& parentChildren			= menu.Children[newMenuItem.IdParent];
+				const int32_t																idPreviousChild				= ((int32_t)parentChildren.size()) - 1;
 				switch(menu.Orientation) {
-				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
-				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
+				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.x = menu.Items[parentChildren[idPreviousChild]].IdControl; break;
+				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.y = menu.Items[parentChildren[idPreviousChild]].IdControl; controlConstraints.DockToControl.x = menu.Items[newMenuItem.IdParent].IdControl; break;
 				}
 			}
+			else
+				switch(menu.Orientation) {
+				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.y = menu.Items[idParent].IdControl; break;
+				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.x = menu.Items[idParent].IdControl; break;
+				}
 		}
 		else if(0 < menu.Items.size()) {
 			const int32_t																idPreviousChild				= menu.Items.size() - 1;
-			switch(menu.Orientation) {	
-			case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
-			case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
-			}
+			if(-1 != idPreviousChild)
+				switch(menu.Orientation) {	
+				case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.DockToControl.x = menu.Items[idPreviousChild].IdControl; break;
+				case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.DockToControl.y = menu.Items[idPreviousChild].IdControl; break;
+				}
 		}
 
 
 	}
 	int32_t																		newIndex					= menu.Items.push_back(newMenuItem);
+	menu.Children.resize(newIndex + 1);
 	if(newMenuItem.IdParent != -1)
 		menu.Children[newMenuItem.IdParent].push_back(newIndex);
 
-	return 0;
+	return newIndex;
 }
 
 
 			::gpk::error_t												setupGUI					(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
 	::gpk::SGUI																	& gui						= framework.GUI;
-	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_THEME;
+	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= ::gpk::ASCII_COLOR_DARKCYAN * 16 + 7;
-	{
-		gpk_necall(app.IdExit = ::gpk::controlCreate(gui), "Out of memory?");
-		::gpk::SControl																& controlExit				= gui.Controls.Controls		[app.IdExit];
-		::gpk::SControlText															& controlText				= gui.Controls.Text			[app.IdExit];
-		::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[app.IdExit];
-		controlExit.Area														= {{0, 0}, {64, 20}};
-		controlExit.Align														= ::gpk::ALIGN_BOTTOM_RIGHT;
-		controlText.Text														= "Exit";
-		controlConstraints.AttachSizeToControl.x								= app.IdExit;
-	}
+	app.Menu.Orientation	= ::gme::MENU_ORIENTATION_VERTICAL;
 	::gme::addMenuItem(gui, app.Menu, "File", -1);
 	::gme::addMenuItem(gui, app.Menu, "Edit", -1);
 	::gme::addMenuItem(gui, app.Menu, "View", -1);
 	::gme::addMenuItem(gui, app.Menu, "Tool", -1);
 	::gme::addMenuItem(gui, app.Menu, "Help", -1);
+	::gme::addMenuItem(gui, app.Menu, "New", 0);
+	::gme::addMenuItem(gui, app.Menu, "Open", 0);
+	::gme::addMenuItem(gui, app.Menu, "Save", 0);
+	app.IdExit = app.Menu.Items[::gme::addMenuItem(gui, app.Menu, "Quit", 0)].IdControl;
 	
 	gui.Controls.Controls	[app.Menu.IdControl].Align						= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Text		[app.Menu.IdControl].Text						= "Menu";

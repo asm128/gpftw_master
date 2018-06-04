@@ -23,7 +23,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 		int32_t											IdControl							= -1;
 		MENU_ORIENTATION								Orientation							= MENU_ORIENTATION_HORIZONTAL;
 		::gpk::array_pod<SMenuItem>						Items								= {};
-		::gpk::array_pod<::gpk::array_pod<int32_t>>		Children							= {};
+		::gpk::array_obj<::gpk::array_pod<int32_t>>		Children							= {};
 	};
 
 	::gpk::error_t									addMenuItem							(::gpk::SGUI& gui, SMenu& menu, const ::gpk::view_const_string& text, int32_t idParent);
