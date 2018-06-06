@@ -23,8 +23,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	control				.Margin												= {4, 4, 4, 4};
 	controlText			.Text												= {text.begin(), text.size()};
 	controlText			.Align												= ::gpk::ALIGN_CENTER_LEFT;
-	controlConstraints	.AttachSizeToText.y									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_VERTICAL	;
-	controlConstraints	.AttachSizeToText.x									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_HORIZONTAL;
+	controlConstraints	.AttachSizeToText									= {true, true};
 	switch(menu.Orientation) {	
 	case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.AttachSizeToControl.y = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.x = menu.IdControls[menu.IdControls.size() - 1]; break;
 	case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.AttachSizeToControl.x = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.y = menu.IdControls[menu.IdControls.size() - 1]; break;
@@ -38,15 +37,13 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gpk::SGUI																	& gui						= framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= ::gpk::ASCII_COLOR_DARKCYAN * 16 + 7;
-	//app.OptionList.Orientation												= ::gme::MENU_ORIENTATION_VERTICAL;
-	/*int32_t firstOption = */
 	::optionListInitialize(gui, app.OptionListMain);
 	int32_t																		idOptionList0				= app.OptionListMain.IdControl;
-	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, 22}};
+	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Modes		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
-	gui.Controls.Constraints[idOptionList0].AttachSizeToControl.x			= idOptionList0; //app.OptionList.IdControls[firstOption];
+	gui.Controls.Constraints[idOptionList0].AttachSizeToControl	.x			= idOptionList0; 
 
 	::gme::optionListPush(gui, app.OptionListMain, "File");
 	::gme::optionListPush(gui, app.OptionListMain, "Edit");
@@ -54,10 +51,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gme::optionListPush(gui, app.OptionListMain, "Tool");
 	::gme::optionListPush(gui, app.OptionListMain, "Help");
 	::gpk::SControl																& control0					= gui.Controls.Controls		[app.OptionListMain.IdControl];
-	//::gpk::SControlText															& controlText				= gui.Controls.Text			[app.OptionList.IdControl];
-	//::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[app.OptionList.IdControl];
-	control0.Margin = control0.Border											= {};
-	//	::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
+	control0.Border = control0.Margin										= {}; 
 
 	::optionListInitialize(gui, app.OptionListFile);
 	app.OptionListFile.Orientation											= ::gme::MENU_ORIENTATION_VERTICAL;
@@ -65,8 +59,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Modes		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= "File";
-	gui.Controls.Constraints[idOptionList].AttachSizeToControl.x			= idOptionList; //app.OptionList.IdControls[firstOption];
-	gui.Controls.Constraints[idOptionList].DockToControl.y					= app.OptionListMain.IdControl; //app.OptionList.IdControls[firstOption];
+	gui.Controls.Constraints[idOptionList].AttachSizeToControl.x			= idOptionList;
+	gui.Controls.Constraints[idOptionList].DockToControl.y					= app.OptionListMain.IdControl;
 
 	::gme::optionListPush(gui, app.OptionListFile, "New");
 	::gme::optionListPush(gui, app.OptionListFile, "Open");
@@ -74,10 +68,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	app.IdExit																= app.OptionListFile.IdControls[::gme::optionListPush(gui, app.OptionListFile, "Exit")];
 
 	::gpk::SControl																& control					= gui.Controls.Controls		[app.OptionListFile.IdControl];
-	//::gpk::SControlText															& controlText				= gui.Controls.Text			[app.OptionList.IdControl];
-	//::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[app.OptionList.IdControl];
 	control.Margin = control.Border											= {};
-	//	::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
 	return 0;
 }
 
@@ -120,7 +111,6 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 				return 1;
 		}
 	}
-
 	//timer.Frame();
 	//info_printf("Update time: %f.", (float)timer.LastTimeSeconds);
 	return 0; 
@@ -138,7 +128,6 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
-	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
 		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
