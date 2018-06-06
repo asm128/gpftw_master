@@ -5,33 +5,6 @@
 #include "gpk_app_impl.h"
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
-
-			::gpk::error_t												optionListInitialize		(::gpk::SGUI& gui, ::gme::SOptionList& menu)													{
-	gpk_necall(menu.IdControl = ::gpk::controlCreate(gui), "Failed to create menu control!");
-	return 0;
-}
-
-			::gpk::error_t												gme::optionListPush			(::gpk::SGUI& gui, ::gme::SOptionList& menu, const ::gpk::view_const_string& text)				{
-	if(menu.IdControl == -1) 
-		gpk_necall(::optionListInitialize(gui, menu), "");
-	const int32_t																idControl					= ::gpk::controlCreate(gui);
-	gpk_necall(idControl, "Failed to create control! Out of memory?");
-	::gpk::controlSetParent(gui, idControl, menu.IdControl);
-	::gpk::SControl																& control					= gui.Controls.Controls		[idControl];
-	::gpk::SControlText															& controlText				= gui.Controls.Text			[idControl];
-	::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[idControl];
-	control				.Margin												= {4, 4, 4, 4};
-	controlText			.Text												= {text.begin(), text.size()};
-	controlText			.Align												= ::gpk::ALIGN_CENTER_LEFT;
-	controlConstraints	.AttachSizeToText.y									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_VERTICAL	;
-	controlConstraints	.AttachSizeToText.x									= true; //menu.Orientation == ::gme::MENU_ORIENTATION_HORIZONTAL;
-	switch(menu.Orientation) {	
-	case ::gme::MENU_ORIENTATION_HORIZONTAL	: controlConstraints.AttachSizeToControl.y = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.x = menu.IdControls[menu.IdControls.size() - 1]; break;
-	case ::gme::MENU_ORIENTATION_VERTICAL	: controlConstraints.AttachSizeToControl.x = menu.IdControl; if(menu.IdControls.size()) controlConstraints.DockToControl.y = menu.IdControls[menu.IdControls.size() - 1]; break;
-	}
-	return menu.IdControls.push_back(idControl);			
-}
-
 	
 			::gpk::error_t												setupGUI					(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
@@ -40,40 +13,40 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.ThemeDefault														= ::gpk::ASCII_COLOR_DARKCYAN * 16 + 7;
 	//app.OptionList.Orientation												= ::gme::MENU_ORIENTATION_VERTICAL;
 	/*int32_t firstOption = */
-	::optionListInitialize(gui, app.OptionListMain);
-	int32_t																		idOptionList0				= app.OptionListMain.IdControl;
+	::gpk::controlListInitialize(gui, app.ControlListMain);
+	int32_t																		idOptionList0				= app.ControlListMain.IdControl;
 	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, 22}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Modes		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
 	gui.Controls.Constraints[idOptionList0].AttachSizeToControl.x			= idOptionList0; //app.OptionList.IdControls[firstOption];
 
-	::gme::optionListPush(gui, app.OptionListMain, "File");
-	::gme::optionListPush(gui, app.OptionListMain, "Edit");
-	::gme::optionListPush(gui, app.OptionListMain, "View");
-	::gme::optionListPush(gui, app.OptionListMain, "Tool");
-	::gme::optionListPush(gui, app.OptionListMain, "Help");
-	::gpk::SControl																& control0					= gui.Controls.Controls		[app.OptionListMain.IdControl];
+	::gpk::controlListPush(gui, app.ControlListMain, "File");
+	::gpk::controlListPush(gui, app.ControlListMain, "Edit");
+	::gpk::controlListPush(gui, app.ControlListMain, "View");
+	::gpk::controlListPush(gui, app.ControlListMain, "Tool");
+	::gpk::controlListPush(gui, app.ControlListMain, "Help");
+	::gpk::SControl																& control0					= gui.Controls.Controls		[app.ControlListMain.IdControl];
 	//::gpk::SControlText															& controlText				= gui.Controls.Text			[app.OptionList.IdControl];
 	//::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[app.OptionList.IdControl];
 	control0.Margin = control0.Border											= {};
 	//	::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
 
-	::optionListInitialize(gui, app.OptionListFile);
-	app.OptionListFile.Orientation											= ::gme::MENU_ORIENTATION_VERTICAL;
-	int32_t																		idOptionList				= app.OptionListFile.IdControl;
+	::gpk::controlListInitialize(gui, app.ControlListFile);
+	app.ControlListFile.Orientation											= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
+	int32_t																		idOptionList				= app.ControlListFile.IdControl;
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_CENTER_TOP;
 	gui.Controls.Modes		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= "File";
 	gui.Controls.Constraints[idOptionList].AttachSizeToControl.x			= idOptionList; //app.OptionList.IdControls[firstOption];
-	gui.Controls.Constraints[idOptionList].DockToControl.y					= app.OptionListMain.IdControl; //app.OptionList.IdControls[firstOption];
+	gui.Controls.Constraints[idOptionList].DockToControl.y					= app.ControlListMain.IdControl; //app.OptionList.IdControls[firstOption];
 
-	::gme::optionListPush(gui, app.OptionListFile, "New");
-	::gme::optionListPush(gui, app.OptionListFile, "Open");
-	::gme::optionListPush(gui, app.OptionListFile, "Save");
-	app.IdExit																= app.OptionListFile.IdControls[::gme::optionListPush(gui, app.OptionListFile, "Exit")];
+	::gpk::controlListPush(gui, app.ControlListFile, "New");
+	::gpk::controlListPush(gui, app.ControlListFile, "Open");
+	::gpk::controlListPush(gui, app.ControlListFile, "Save");
+	app.IdExit																= app.ControlListFile.IdControls[::gpk::controlListPush(gui, app.ControlListFile, "Exit")];
 
-	::gpk::SControl																& control					= gui.Controls.Controls		[app.OptionListFile.IdControl];
+	::gpk::SControl																& control					= gui.Controls.Controls		[app.ControlListFile.IdControl];
 	//::gpk::SControlText															& controlText				= gui.Controls.Text			[app.OptionList.IdControl];
 	//::gpk::SControlConstraints													& controlConstraints		= gui.Controls.Constraints	[app.OptionList.IdControl];
 	control.Margin = control.Border											= {};
