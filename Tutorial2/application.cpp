@@ -1,5 +1,6 @@
 #include "application.h"
 #include "gpk_bitmap_file.h"
+#include "gpk_grid_copy.h"
 
 #define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
 #include "gpk_app_impl.h"
@@ -38,7 +39,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.Controls.Constraints[idOptionList].DockToControl.y					= app.ControlListMain.IdControl;	
 	gui.Controls.Constraints[idOptionList].Hidden							= true;
 
-	::gpk::controlListPush(gui, app.ControlListFile, "New");
+	app.IdNew																= app.ControlListFile.IdControls[::gpk::controlListPush(gui, app.ControlListFile, "New")];
 	::gpk::controlListPush(gui, app.ControlListFile, "Open");
 	::gpk::controlListPush(gui, app.ControlListFile, "Save");
 	app.IdExit																= app.ControlListFile.IdControls[::gpk::controlListPush(gui, app.ControlListFile, "Exit")];
@@ -76,6 +77,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		gui.Zoom.ZoomLevel														+= app.Framework.Input->MouseCurrent.Deltas.z * (1.0f / (120 * 4));
 		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
 	}
+
+	if(app.Framework.Input->MouseCurrent.ButtonState[0] && ::gpk::in_range(gui.CursorPos.Cast<uint32_t>(), {::gpk::SCoord2<uint32_t>{0U, (uint32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y}, app.PaintScreen->Color.View.metrics()}))
+		app.PaintScreen->Color.View[(uint32_t)gui.CursorPos.y - gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y][(uint32_t)gui.CursorPos.x]			= ::gpk::YELLOW;
+
  
 	for(uint32_t iControl = 0, countControls = gui.Controls.Controls.size(); iControl < countControls; ++iControl) {
 		const ::gpk::SControlState													& controlState				= gui.Controls.States[iControl];
@@ -88,15 +93,24 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 		if(iControl == (uint32_t)app.IdFile)
-			if(controlState.Hover) {
+			if(controlState.Hover) 
 				gui.Controls.Constraints[app.ControlListFile.IdControl].Hidden	= false;
-			}
 			else {
 				if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[app.ControlListFile.IdControl].Total.Global) && gui.Controls.Constraints[app.ControlListFile.IdControl].Hidden == false)
 					gui.Controls.Constraints[app.ControlListFile.IdControl].Hidden	= false;
 				else
 					gui.Controls.Constraints[app.ControlListFile.IdControl].Hidden	= true;
 			}
+
+		if(iControl == (uint32_t)app.IdNew) {
+			if(controlState.Execute) {
+				::gme::mutex_guard															lock						(app.LockRender);
+				app.PaintScreen.create();
+				app.PaintScreen->Color			.resize(app.Offscreen->Color.View.metrics() - ::gpk::SCoord2<uint32_t>{0U, (uint32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y});
+				app.PaintScreen->DepthStencil	.resize(app.Offscreen->Color.View.metrics() - ::gpk::SCoord2<uint32_t>{0U, (uint32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y});
+				::gpk::clearTarget(*app.PaintScreen);
+			}
+		}
 	}
 
 	//timer.Frame();
@@ -116,6 +130,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
+	::gpk::grid_copy(target->Color.View, app.PaintScreen->Color.View, ::gpk::SCoord2<int32_t>{0, app.Framework.GUI.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y});
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
