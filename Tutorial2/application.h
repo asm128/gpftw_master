@@ -14,6 +14,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
 
 		int32_t											IdExit								= -1;
+		int32_t											IdFile								= -1;
 		::gpk::SControlList								ControlListMain						= {};
 		::gpk::SControlList								ControlListFile						= {};
 
