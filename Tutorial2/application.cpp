@@ -148,7 +148,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
-	::gpk::grid_copy(target->Color.View, app.PaintScreen->Color.View, ::gpk::SCoord2<int32_t>{0, app.Framework.GUI.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y});
+	{
+		::gme::mutex_guard															lock						(app.LockRender);
+		::gpk::grid_copy(target->Color.View, app.PaintScreen->Color.View, ::gpk::SCoord2<int32_t>{0, app.Framework.GUI.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y});
+	}
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
