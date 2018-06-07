@@ -81,13 +81,24 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	const ::gpk::SCoord2<int32_t>													paintOffset				= {0, (int32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y};
 
-	if(app.Framework.Input->MouseCurrent.ButtonState[0] && ::gpk::in_range(gui.CursorPos.Cast<uint32_t>(), {paintOffset.Cast<uint32_t>(), app.PaintScreen->Color.View.metrics()})) {
+	if(::gpk::in_range(gui.CursorPos.Cast<uint32_t>(), {paintOffset.Cast<uint32_t>(), app.PaintScreen->Color.View.metrics()})) {
 		const ::gpk::SCoord2<int32_t>													mouseDeltas				= {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
-		const ::gpk::SCoord2<int32_t>													lineOrigin				= gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas;
-		const ::gpk::SCoord2<int32_t>													lineEnd					= gui.CursorPos.Cast<int32_t>() - paintOffset;
-		::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, ::gpk::SLine2D<int32_t>{lineOrigin, lineEnd});
+		if(app.Framework.Input->MouseCurrent.ButtonState[0]) {
+			if(mouseDeltas.LengthSquared()) {
+				const ::gpk::SLine2D<int32_t>													lineToDraw				= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
+				::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
+				//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
+				::gpk::drawLine(app.PaintScreen->Color.View.metrics(), lineToDraw, pointsToDraw);
+				for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
+					::gpk::drawPixelBrightness(app.PaintScreen->Color.View, pointsToDraw[iPoint], ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
+			}
+			else if(app.Framework.Input->ButtonDown(0)) {
+				::gpk::SCoord2<int32_t>															mousePos				= {framework.Input->MouseCurrent.Position.x, framework.Input->MouseCurrent.Position.y};
+				mousePos																	-= paintOffset;
+				::gpk::drawPixelBrightness(app.PaintScreen->Color.View, mousePos, ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
+			}
+		}
 	}
-
  
 	for(uint32_t iControl = 0, countControls = gui.Controls.Controls.size(); iControl < countControls; ++iControl) {
 		const ::gpk::SControlState														& controlState				= gui.Controls.States[iControl];
