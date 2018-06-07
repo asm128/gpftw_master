@@ -1,5 +1,6 @@
 #include "application.h"
 #include "gpk_bitmap_file.h"
+#include "gpk_bitmap_target.h"
 #include "gpk_grid_copy.h"
 
 #define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
@@ -78,12 +79,18 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
 	}
 
-	if(app.Framework.Input->MouseCurrent.ButtonState[0] && ::gpk::in_range(gui.CursorPos.Cast<uint32_t>(), {::gpk::SCoord2<uint32_t>{0U, (uint32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y}, app.PaintScreen->Color.View.metrics()}))
-		app.PaintScreen->Color.View[(uint32_t)gui.CursorPos.y - gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y][(uint32_t)gui.CursorPos.x]			= ::gpk::YELLOW;
+	const ::gpk::SCoord2<int32_t>													paintOffset				= {0, (int32_t)gui.Controls.Metrics[app.ControlListMain.IdControl].Total.Global.Size.y};
+
+	if(app.Framework.Input->MouseCurrent.ButtonState[0] && ::gpk::in_range(gui.CursorPos.Cast<uint32_t>(), {paintOffset.Cast<uint32_t>(), app.PaintScreen->Color.View.metrics()})) {
+		const ::gpk::SCoord2<int32_t>													mouseDeltas				= {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
+		const ::gpk::SCoord2<int32_t>													lineOrigin				= gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas;
+		const ::gpk::SCoord2<int32_t>													lineEnd					= gui.CursorPos.Cast<int32_t>() - paintOffset;
+		::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, ::gpk::SLine2D<int32_t>{lineOrigin, lineEnd});
+	}
 
  
 	for(uint32_t iControl = 0, countControls = gui.Controls.Controls.size(); iControl < countControls; ++iControl) {
-		const ::gpk::SControlState													& controlState				= gui.Controls.States[iControl];
+		const ::gpk::SControlState														& controlState				= gui.Controls.States[iControl];
 		if(controlState.Unused || controlState.Disabled)
 			continue;
 		if(iControl == (uint32_t)app.IdExit) {
