@@ -9,16 +9,21 @@
 
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
+	struct SAppMenu {
+		::gpk::SControlList								ControlListMain						= {};
+		::gpk::SControlList								ControlListFile						= {};
+		int32_t											ControlSelectedMain					= -1;
+	};
+
 	struct SApplication {
 		::gpk::SFramework								Framework;
 		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
 		::gpk::ptr_obj<::gpk::SRenderTarget>			PaintScreen							= {};
 
+		SAppMenu										Menu								= {};
 		int32_t											IdExit								= -1;
 		int32_t											IdFile								= -1;
 		int32_t											IdNew								= -1;
-		::gpk::SControlList								ControlListMain						= {};
-		::gpk::SControlList								ControlListFile						= {};
 
 		::std::mutex									LockGUI;
 		::std::mutex									LockRender;

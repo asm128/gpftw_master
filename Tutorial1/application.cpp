@@ -31,7 +31,6 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	return menu.IdControls.push_back(idControl);			
 }
 
-	
 			::gpk::error_t												setupGUI					(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
 	::gpk::SGUI																	& gui						= framework.GUI;
@@ -72,12 +71,33 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	return 0;
 }
 
+			::gpk::error_t												cleanup						(::gme::SApplication & app)						{ return ::gpk::mainWindowDestroy(app.Framework.MainDisplay); }
 			::gpk::error_t												setup						(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
 	::gpk::SDisplay																& mainWindow				= framework.MainDisplay;
 	ree_if(0 == framework.Input.create(), "Out of memory?");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(setupGUI(app), "Unknown error.");
+	return 0; 
+}
+
+			::gpk::error_t												draw						(::gme::SApplication & app)						{ 
+	::gpk::STimer																timer;
+	app;
+	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
+	target.create();
+	target->Color		.resize(app.Framework.MainDisplay.Size);
+	target->DepthStencil.resize(target->Color.View.metrics());
+	{
+		::gme::mutex_guard															lock						(app.LockGUI);
+		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
+	}
+	{
+		::gme::mutex_guard															lock						(app.LockRender);
+		app.Offscreen															= target;
+	}
+	//timer.Frame();
+	//info_printf("Draw time: %f.", (float)timer.LastTimeSeconds);
 	return 0; 
 }
 
@@ -108,35 +128,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		if(controlState.Execute) {
 			info_printf("Executed %u.", iControl);
 			if(iControl == (uint32_t)app.IdExit)
-				return 1;
+				return ::gpk::APPLICATION_STATE_EXIT;
 		}
 	}
 	//timer.Frame();
 	//info_printf("Update time: %f.", (float)timer.LastTimeSeconds);
-	return 0; 
-}
-
-			::gpk::error_t												cleanup						(::gme::SApplication & app)						{ 
-	::gpk::mainWindowDestroy(app.Framework.MainDisplay);
-	return 0; 
-}
-
-			::gpk::error_t												draw						(::gme::SApplication & app)						{ 
-	::gpk::STimer																timer;
-	app;
-	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
-	target.create();
-	target->Color		.resize(app.Framework.MainDisplay.Size);
-	target->DepthStencil.resize(target->Color.View.metrics());
-	{
-		::gme::mutex_guard															lock						(app.LockGUI);
-		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
-	}
-	{
-		::gme::mutex_guard															lock						(app.LockRender);
-		app.Offscreen															= target;
-	}
-	//timer.Frame();
-	//info_printf("Draw time: %f.", (float)timer.LastTimeSeconds);
 	return 0; 
 }

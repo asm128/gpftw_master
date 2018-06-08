@@ -1,5 +1,7 @@
 #include "gpk_framework.h"
 #include "gpk_gui.h"
+#include "gpk_gui_control.h"
+#include "gpk_label.h"
 
 #include <mutex>
 
@@ -8,28 +10,19 @@
 
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
-#pragma pack(push, 1)
-	enum MENU_ORIENTATION : int32_t 
-		{	MENU_ORIENTATION_HORIZONTAL	= 1
-		,	MENU_ORIENTATION_VERTICAL	= 2
-		};
-
-	struct SOptionList {
-		int32_t											IdControl								= -1;
-		MENU_ORIENTATION								Orientation								= ::gme::MENU_ORIENTATION_HORIZONTAL;
-		::gpk::array_pod<int32_t>						IdControls								= {};
+	struct SAppMenu {
+		::gpk::SControlList								ControlListMain						= {};
+		::gpk::SControlList								ControlListFile						= {};
+		int32_t											ControlSelectedMain					= -1;
 	};
-
-	::gpk::error_t									optionListPush							(::gpk::SGUI& gui, ::gme::SOptionList& menu, const ::gpk::view_const_string& text);
-#pragma pack(pop)
 
 	struct SApplication {
 		::gpk::SFramework								Framework;
 		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
+		::gpk::ptr_obj<::gpk::SRenderTarget>			PaintScreen							= {};
 
-		int32_t											IdExit								= -1;
-		::gme::SOptionList								OptionListMain						= {};
-		::gme::SOptionList								OptionListFile						= {};
+		SAppMenu										Menu								= {};
+
 
 		::std::mutex									LockGUI;
 		::std::mutex									LockRender;
@@ -38,6 +31,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 	};
 
 	typedef ::std::lock_guard<::std::mutex>			mutex_guard;
+
 
 } // namespace
 
