@@ -10,27 +10,59 @@
 
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
+	enum APP_MENU
+		{ APP_MENU_MAIN		= 0
+		, APP_MENU_FILE
+		, APP_MENU_EDIT
+		, APP_MENU_COUNT	
+		};
+
 	struct SAppMenu {
-		::gpk::SControlList								ControlListMain						= {};
-		::gpk::SControlList								ControlListFile						= {};
-		int32_t											ControlSelectedMain					= -1;
+				::gpk::array_static<::gpk::SControlList, APP_MENU_COUNT>	Items								= {};
+				int32_t														ItemSelectedMain					= -1;
 	};
+
+	enum VIEWPORT_CONTROL
+		{ VIEWPORT_CONTROL_TITLE	= 0
+		, VIEWPORT_CONTROL_TARGET
+		, VIEWPORT_CONTROL_COUNT
+		};
+
+	struct SViewport {
+				int32_t														IdControl							= -1;
+				::gpk::array_static<int32_t, ::gme::VIEWPORT_CONTROL_COUNT>	IdControls							= {};
+//				::gpk::STexture<::gpk::SColorBGRA>							ClientTarget						= {};
+	};
+
+			::gpk::error_t												viewportInitialize					(::gpk::SGUI& gui, ::gme::SViewport& viewport);
+			::gpk::error_t												viewportResize						(::gpk::SGUI& gui, ::gme::SViewport& viewport);
+
+	//struct SMenu {
+	//			::gpk::SControlList											Items								= {};
+	//			int32_t														ItemSelected						= -1;	// index to Items
+	//};
+
+	//struct SAppDesktop {
+	//			int32_t														ControlDesktop						= -1;
+	//			::gpk::array_obj<SMenu>										Menus;
+	//};
 
 	struct SApplication {
-		::gpk::SFramework								Framework;
-		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
-		::gpk::ptr_obj<::gpk::SRenderTarget>			PaintScreen							= {};
+				::gpk::SFramework											Framework;
+				::gpk::ptr_obj<::gpk::SRenderTarget>						Offscreen							= {};
+				::gpk::ptr_obj<::gpk::SRenderTarget>						PaintScreen							= {};
 
-		SAppMenu										Menu								= {};
+				int32_t														ControlDesktop						= -1;
+				::gme::SAppMenu												Menu								= {};
+				::gme::SViewport											PaintViewport						= {};
 
+				::std::mutex												LockGUI;
+				::std::mutex												LockRender;
 
-		::std::mutex									LockGUI;
-		::std::mutex									LockRender;
-
-														SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
+																			SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};
 
-	typedef ::std::lock_guard<::std::mutex>			mutex_guard;
+	typedef	::std::lock_guard<::std::mutex>									mutex_guard;
 
 
 } // namespace

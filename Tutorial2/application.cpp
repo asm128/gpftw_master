@@ -38,7 +38,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_TOP_LEFT;
 	gui.Controls.Modes		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= gui.Controls.Text[parentControl].Text;
-	gui.Controls.Constraints[idOptionList].DockToControl.y					= parentControl;
+	gui.Controls.Constraints[idOptionList].DockToControl.Bottom				= parentControl;
 	gui.Controls.Constraints[idOptionList].Hidden							= true;
 
 	app.IdNew																= ::gpk::controlListPush(gui, app.Menu.ControlListFile, "New");
@@ -111,7 +111,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	}
 	if(app.Framework.Input->MouseCurrent.Deltas.z) {
 		gui.Zoom.ZoomLevel														+= app.Framework.Input->MouseCurrent.Deltas.z * (1.0f / (120 * 4));
-		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size);
+		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size, true);
 	}
 
 	::gpk::array_pod<uint32_t>														controlsToProcess					= {};
