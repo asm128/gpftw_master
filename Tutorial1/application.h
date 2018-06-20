@@ -35,10 +35,10 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 		::std::mutex									LockRender;
 
 
-		::gpk::STexture<::gpk::SColorBGRA>				TextureTest;
+		::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>	TexturesTest;
 
 
-														SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
+																SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};
 
 	typedef ::std::lock_guard<::std::mutex>			mutex_guard;

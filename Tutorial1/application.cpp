@@ -1,6 +1,7 @@
 #include "application.h"
 #include "gpk_bitmap_file.h"
 #include "gpk_grid_copy.h"
+#include "gpk_label.h"
 
 #define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
 #include "gpk_app_impl.h"
@@ -80,8 +81,25 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(setupGUI(app), "Unknown error.");
 
-	::gpk::STexture<::gpk::SColorBGRA>											& textureLoaded				= app.TextureTest;
-	::gpk::bmpFileLoad(::gpk::view_const_string("test.bmp"), textureLoaded);
+	::gpk::label																textureNames []				= 
+		{ "pow_0.bmp"
+		, "pow_1.bmp" 
+		, "pow_2.bmp" 
+		, "pow_3.bmp" 
+		, "crosshair_0.bmp"														
+		, "crosshair_1.bmp"														
+		, "crosshair_2.bmp"														
+		, "crosshair_3.bmp"														
+		, "crosshair_4.bmp"														
+		};
+
+	uint32_t																	myTextureCount				= ::gpk::size(textureNames);
+	app.TexturesTest.resize(myTextureCount);
+
+	for(uint32_t iTexture = 0; iTexture < myTextureCount; ++iTexture) {
+		::gpk::STexture<::gpk::SColorBGRA>											& textureLoaded				= app.TexturesTest[iTexture];
+		::gpk::bmpFileLoad(textureNames[iTexture], textureLoaded);
+	}
 	return 0; 
 }
 
@@ -94,7 +112,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target->DepthStencil.resize(target->Color.View.metrics());
 
 	//--- Dibujar sobrne el target
-	::gpk::grid_copy_alpha(target->Color.View, app.TextureTest.View, ::gpk::SCoord2<int32_t>{500, 256}, ::gpk::SColorBGRA{0xFF, 0x00, 0xFF, 0xFF});
+	for(uint32_t iTex = 0; iTex < app.TexturesTest.size(); ++iTex)
+		::gpk::grid_copy_alpha(target->Color.View, app.TexturesTest[iTex].View, ::gpk::SCoord2<int32_t>{500, 256 + 32*(int32_t)iTex}, ::gpk::SColorBGRA{0xFF, 0x00, 0xFF, 0xFF});
 
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
