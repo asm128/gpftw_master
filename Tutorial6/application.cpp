@@ -210,9 +210,9 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 	}
-	if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit		]].Execute)	return ::gpk::APPLICATION_STATE_EXIT;
-	if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New		]].Execute)	::paintViewportCreate	(app);
-	if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette	]].Execute)	::paletteCreate			(app);
+		 if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit		]].Execute)	return ::gpk::APPLICATION_STATE_EXIT;
+	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New		]].Execute)	::paintViewportCreate	(app);
+	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette	]].Execute)	::paletteCreate			(app);
 
 	for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
 		const ::gpk::SControlState														& controlState						= gui.Controls.States[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]];
