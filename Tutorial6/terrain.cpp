@@ -1,4 +1,4 @@
-#include "application.h"
+#include "terrain.h"
 
 
 static		::gpk::error_t									gndGenerateFaceGeometryRight							(uint32_t baseX, uint32_t baseZ, float tileScale, int32_t skinIndexRight, const ::gme::STileHeights & geometryTile, const ::gme::STileHeights * geometryTileRight, const ::gpk::array_view<::gme::STileSkin>& lstTileSkinData, ::gme::SModelNode& generated, ::gme::STileMapping & out_mapping)	{ 
