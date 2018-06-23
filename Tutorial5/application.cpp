@@ -26,6 +26,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gpk::SControl																& control								= gui.Controls.Controls		[idOptionList];
 	::gpk::SControlConstraints													& controlConstraints					= gui.Controls.Constraints	[idOptionList];
 	::gpk::SControlMode															& controlMode							= gui.Controls.Modes		[idOptionList];
+	::gpk::SControlState														& controlState							= gui.Controls.States		[idOptionList];
 	control.Align															= menuAlign;	// Align should not be hardcoded
 	control.Margin = control.Border											= {};
 	controlConstraints.AttachSizeToControl.x								= (parentControl == -1) ? idOptionList : -1; 
@@ -37,7 +38,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	}
 
 	if(parentControl != -1) {
-		controlConstraints.Hidden												= true;
+		controlState.Hidden														= true;
 		gui.Controls.Text		[idOptionList].Text								= gui.Controls.Text[parentControl].Text;
 	}
 	//else {
@@ -206,7 +207,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			desktop.SelectedMenu													= -1;
 			for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
 				if(false == ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]].Total.Global)) 
-					gui.Controls.Constraints[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+					gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
 			}
 		}
 	}
@@ -216,18 +217,18 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
 		const ::gpk::SControlState														& controlState						= gui.Controls.States[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]];
-		::gpk::SControlConstraints														& controlListConstraints			= gui.Controls.Constraints[desktop.Menus[iMenu + 1].IdControl];
+		::gpk::SControlState															& controlListStates					= gui.Controls.States[desktop.Menus[iMenu + 1].IdControl];
 		if(controlState.Hover) {
-			controlListConstraints.Hidden												= false;
+			controlListStates.Hidden													= false;
 			if(controlState.Execute) 
-				desktop.SelectedMenu													= iMenu;
+				desktop.SelectedMenu														= iMenu;
 		}
 		else {
 			const ::gpk::SControlMetrics													& controlListMetrics				= gui.Controls.Metrics[desktop.Menus[iMenu + 1].IdControl];
-			if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlListMetrics.Total.Global) && controlListConstraints.Hidden == false)
-				controlListConstraints.Hidden												= false;
+			if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlListMetrics.Total.Global) && controlListStates.Hidden == false)
+				controlListStates.Hidden													= false;
 			else if(desktop.SelectedMenu != (int32_t)iMenu)
-				controlListConstraints.Hidden												= true;
+				controlListStates.Hidden													= true;
 		}
 	}
 
@@ -253,14 +254,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	if(app.Framework.Input->ButtonDown(1) || app.Framework.Input->ButtonDown(2)) {
 		desktop.SelectedMenu														= -1;
 		for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
-			gui.Controls.Constraints[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+			gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
 	}
 
 	if(false == inControlArea) {
 		if(app.Framework.Input->ButtonDown(0)) {
 			desktop.SelectedMenu														= -1;
 			for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
-				gui.Controls.Constraints[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+				gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
 		}
 	}
 

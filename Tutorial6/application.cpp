@@ -99,6 +99,19 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 0, 0);
 	}
 
+	{
+		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
+		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
+		uint32_t																	maxTextLength							= 0;
+		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsNew); ++iOption) {
+			maxTextLength															= ::gpk::max(maxTextLength, ::gme::g_MenuOptionsNew[iOption].size());
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsNew[iOption]);
+		}
+		gui.Controls.States[desktop.Items.ControlLists[idMenu].IdControl].Hidden = true;
+		//gui.Controls.Controls[desktop.Items.ControlLists[idMenu].IdControl].Area.Size.x	= maxTextLength * gui.FontCharSize.x + ::gpk::controlNCSpacing(gui.Controls.Controls[desktop.Items.ControlLists[idMenu].IdControls[0]]).x;
+		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 0);
+	}
+
 	return 0;
 }
 
