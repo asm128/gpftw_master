@@ -8,7 +8,6 @@ namespace gme
 {
 
 	// U and V TexCoords follow the same order from GAT format heights
-
 	struct STileSkin {
 				::gpk::SCoord2<float>														UVs[4]							= { {0, 0}, {1, 0}, {0, 1}, {1, 1} };				//< west->east, north->south ordering; 0=left 1=right
 				int16_t																		TextureIndex					= -1			;		//< -1 for none
