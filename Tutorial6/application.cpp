@@ -8,54 +8,6 @@
 #include "gpk_app_impl.h"
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
-//
-//			::gpk::error_t												setupMenu								
-//	( ::gpk::SGUI													& gui
-//	, ::gpk::SControlList											& menuControlList
-//	, int32_t														parentControl
-//	, ::gpk::ALIGN													menuAlign
-//	, ::gpk::CONTROL_LIST_DIRECTION									direction
-//	, const ::gpk::array_view<const ::gpk::view_const_string>		& menuOptions 
-//	) { 
-//
-//	if(-1 == menuControlList.IdControl)
-//		::gpk::controlListInitialize(gui, menuControlList);
-//
-//	menuControlList.Orientation												= direction;
-//	int32_t																		idOptionList							= menuControlList.IdControl;
-//	::gpk::SControl																& control								= gui.Controls.Controls		[idOptionList];
-//	::gpk::SControlConstraints													& controlConstraints					= gui.Controls.Constraints	[idOptionList];
-//	::gpk::SControlMode															& controlMode							= gui.Controls.Modes		[idOptionList];
-//	control.Align															= menuAlign;	// Align should not be hardcoded
-//	control.Margin = control.Border											= {};
-//	controlConstraints.AttachSizeToControl.x								= (parentControl == -1) ? idOptionList : -1; 
-//	controlConstraints.DockToControl.Bottom									= parentControl;
-//	controlMode.Design														= true;
-//	if(parentControl != -1) {
-//		control.Area.Offset.x													= (parentControl == -1) ? -gui.Controls.Controls[parentControl].Area.Size.x : 0; 
-//		controlConstraints.DockToControl.Left									= parentControl;
-//	}
-//
-//	if(parentControl != -1) {
-//		gui.Controls.States		[idOptionList].Hidden												= true;
-//		gui.Controls.Text		[idOptionList].Text								= gui.Controls.Text[parentControl].Text;
-//	}
-//	//else {
-//	//	gui.Controls.Text		[idOptionList].Text								= {};//"Menu";
-//	//}
-//
-//	if(direction == ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL) 
-//		control.Area															= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};	// Height should not be hardcoded
-//	else {
-//		const ::gpk::SCoord2<int32_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int32_t>{};
-//		control.Area															= ::gpk::SRectangle2D<int32_t>{parentOffset, {100, }};	// Width should not be hardcoded
-//	}
-//
-//	for(uint32_t iOption = 0; iOption < menuOptions.size(); ++iOption)
-//		::gpk::controlListPush(gui, menuControlList, menuOptions[iOption]);
-//
-//	return 0;
-//}
 
 			::gpk::error_t												setupGUI								(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework								= app.Framework;
@@ -70,13 +22,6 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.Controls.Controls	[app.Desktop.IdControl].ColorTheme				= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
 	gui.Controls.Controls	[app.Desktop.IdControl].Border					= 
 	gui.Controls.Controls	[app.Desktop.IdControl].Margin					= {};
-
-	//app.Desktop.Menus.resize(::gme::APP_MENU_COUNT);
-	//
-	//// --- Setup "Main" menu
-	//gpk_necall(::setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_MAIN], -1, ::gpk::ALIGN_CENTER_TOP, ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL, ::gme::g_MenuOptionsMain), "No known reason for this to fail other than memory corruption.");
-	//gpk_necall(::setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_FILE], app.Desktop.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_File], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsFile), "No known reason for this to fail other than memory corruption.");
-	//gpk_necall(::setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_EDIT], app.Desktop.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_Edit], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsEdit), "No known reason for this to fail other than memory corruption.");
 
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
@@ -242,11 +187,11 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 	}
-	if(desktop.Menus.size()) {
-			 if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit		]].Execute)	return ::gpk::APPLICATION_STATE_EXIT;
-		else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New		]].Execute)	::paintViewportCreate	(app);
-		else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette	]].Execute)	::paletteCreate			(app);
-	}
+	//if(desktop.Menus.size()) {
+	//		 if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit		]].Execute)	return ::gpk::APPLICATION_STATE_EXIT;
+	//	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New		]].Execute)	::paintViewportCreate	(app);
+	//	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette	]].Execute)	::paletteCreate			(app);
+	//}
 
 	for(uint32_t iMenu = 0, countMenus = (uint32_t)::gpk::max(0, (int32_t)desktop.Menus.size() - 1); iMenu < countMenus; ++iMenu) {
 		::gpk::SControlState															& controlState						= gui.Controls.States[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]];
