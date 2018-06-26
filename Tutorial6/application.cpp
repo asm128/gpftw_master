@@ -17,7 +17,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	// --- Setup desktop  
 	app.Desktop.IdControl													= ::gpk::controlCreate(gui);
-	//gui.Controls.Modes		[app.ControlDesktop].Design						= true;
+	gui.Controls.Modes		[app.Desktop.IdControl].Design					= true;
 	gui.Controls.Constraints[app.Desktop.IdControl].AttachSizeToControl		= {app.Desktop.IdControl, app.Desktop.IdControl};
 	gui.Controls.Controls	[app.Desktop.IdControl].ColorTheme				= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
 	gui.Controls.Controls	[app.Desktop.IdControl].Border					= 
@@ -28,29 +28,40 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
 		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
 		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsMain); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsMain[iOption]);
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsMain[iOption].Text, ::gme::g_MenuOptionsMain[iOption].IdEvent);
 	}
 	{
 		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
 		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsFile); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsFile[iOption]);
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsFile[iOption].Text, ::gme::g_MenuOptionsFile[iOption].IdEvent);
 		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 0, 0);
 	}
 	{
 		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
 		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsNew); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsNew[iOption]);
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsNew[iOption].Text, ::gme::g_MenuOptionsNew[iOption].IdEvent);
 		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 0);
 	}
 	{
 		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsNew); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsNew[iOption]);
+		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsOpen); ++iOption) 
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsOpen[iOption].Text, ::gme::g_MenuOptionsOpen[iOption].IdEvent);
 
 		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 1);
+	}
+	{
+		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
+		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsSave); ++iOption) 
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsSave[iOption].Text, ::gme::g_MenuOptionsSave[iOption].IdEvent);
+
+		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 2);
+	}
+	{
+		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
+		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsHelp); ++iOption) 
+			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsHelp[iOption].Text, ::gme::g_MenuOptionsHelp[iOption].IdEvent);
+
+		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 0, 4);
 	}
 	return 0;
 }
@@ -167,46 +178,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	::gpk::SDesktop																	& desktop							= app.Desktop;
 	bool																			inControlArea						= false;
-	//bool																			anyControlPressed					= false;
 	for(uint32_t iControlToProcess = 0, countControls = controlsToProcess.size(); iControlToProcess < countControls; ++iControlToProcess) {
 		const uint32_t																	iControl							= controlsToProcess[iControlToProcess];
 		const ::gpk::SControlState														& controlState						= gui.Controls.States[iControl];
 		const ::gpk::SControlMetrics													& controlMetrics					= gui.Controls.Metrics[iControl];
 		if(iControl != (uint32_t)desktop.IdControl)
 			inControlArea																= inControlArea || ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlMetrics.Total.Global);
-
-		//if(controlState.Pressed && (int32_t)iControl != desktop.IdControl)
-		//	anyControlPressed															= true;
-
-		if(controlState.Execute) {
+		if(controlState.Execute) 
 			info_printf("Executed %u.", iControl);
-			desktop.SelectedMenu													= -1;
-			for(uint32_t iMenu = 0, countMenus = (uint32_t)::gpk::max(0, (int32_t)desktop.Menus.size() - 1); iMenu < countMenus; ++iMenu) {
-				if(false == ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]].Total.Global)) 
-					gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
-			}
-		}
-	}
-	//if(desktop.Menus.size()) {
-	//		 if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit		]].Execute)	return ::gpk::APPLICATION_STATE_EXIT;
-	//	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New		]].Execute)	::paintViewportCreate	(app);
-	//	else if(gui.Controls.States[desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette	]].Execute)	::paletteCreate			(app);
-	//}
-
-	for(uint32_t iMenu = 0, countMenus = (uint32_t)::gpk::max(0, (int32_t)desktop.Menus.size() - 1); iMenu < countMenus; ++iMenu) {
-		::gpk::SControlState															& controlState						= gui.Controls.States[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]];
-		if(controlState.Hover) {
-			controlState.Hidden												= false;
-			if(controlState.Execute) 
-				desktop.SelectedMenu													= iMenu;
-		}
-		else {
-			const ::gpk::SControlMetrics													& controlListMetrics				= gui.Controls.Metrics[desktop.Menus[iMenu + 1].IdControl];
-			if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlListMetrics.Total.Global) && controlState.Hidden == false)
-				controlState.Hidden												= false;
-			else if(desktop.SelectedMenu != (int32_t)iMenu)
-				controlState.Hidden												= true;
-		}
 	}
 
 	for(uint32_t iPalette = 0; iPalette < desktop.Items.PaletteGrids.size(); ++iPalette) {
@@ -223,24 +202,18 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 	}
 
+	int64_t desktopEvent = 0;
 	{
 		::gme::mutex_guard																lock								(app.LockGUI);
-		::gpk::desktopUpdate(gui, desktop, input);
+		desktopEvent																= ::gpk::desktopUpdate(gui, desktop, input);
 	}
-
-	if(input.ButtonDown(1) || input.ButtonDown(2)) {
-		desktop.SelectedMenu														= -1;
-		for(uint32_t iMenu = 0, countMenus = (uint32_t)::gpk::max(0, (int32_t)desktop.Menus.size() - 1); iMenu < countMenus; ++iMenu) 
-			gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
-	}
-
-	if(false == inControlArea) {
-		if(input.ButtonDown(0)) {
-			desktop.SelectedMenu														= -1;
-			for(uint32_t iMenu = 0, countMenus = (uint32_t)::gpk::max(0, (int32_t)desktop.Menus.size() - 1); iMenu < countMenus; ++iMenu) 
-				gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+	if(desktopEvent)
+		switch(desktopEvent) {
+		case ::gme::APP_MENU_EVENT_EXIT			: return 1;
+		case ::gme::APP_MENU_EVENT_NONE			: break;
+		case ::gme::APP_MENU_EVENT_NEW_PALETTE	: ::paletteCreate		(app);	break;
+		case ::gme::APP_MENU_EVENT_NEW_IMAGE	: ::paintViewportCreate	(app);	break;
 		}
-	}
 
 	for(uint32_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
 		::gpk::SViewport																& currentViewport					= desktop.Items.Viewports[iViewport];

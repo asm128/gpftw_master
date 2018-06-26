@@ -65,12 +65,12 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gui.Controls.Constraints[app.Desktop.IdControl].AttachSizeToControl		= {app.Desktop.IdControl, app.Desktop.IdControl};
 	gui.Controls.Controls	[app.Desktop.IdControl].ColorTheme					= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
 
-	app.Desktop.Menus.resize(::gme::APP_MENU_COUNT);
+	app.Menus.resize(::gme::APP_MENU_COUNT);
 
 	// --- Setup "Main" menu
-	gpk_necall(setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_MAIN], -1, ::gpk::ALIGN_CENTER_TOP, ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL, ::gme::g_MenuOptionsMain), "No known reason for this to fail other than memory corruption.");
-	gpk_necall(setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_FILE], app.Desktop.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_File], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsFile), "No known reason for this to fail other than memory corruption.");
-	gpk_necall(setupMenu(gui, app.Desktop.Menus[::gme::APP_MENU_EDIT], app.Desktop.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_Edit], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsEdit), "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_MAIN], -1, ::gpk::ALIGN_CENTER_TOP, ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL, ::gme::g_MenuOptionsMain), "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_FILE], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_File], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsFile), "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_EDIT], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_Edit], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsEdit), "No known reason for this to fail other than memory corruption.");
 	return 0;
 }
 
@@ -143,18 +143,18 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		if(controlState.Execute) {
 			info_printf("Executed %u.", iControl);
 			desktop.SelectedMenu													= -1;
-			for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
-				if(false == ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]].Total.Global)) 
-					gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+			for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
+				if(false == ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[app.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]].Total.Global)) 
+					gui.Controls.States[app.Menus[iMenu + 1].IdControl].Hidden			= true;
 			}
 		}
-		if(iControl == (uint32_t)desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit]) {
+		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit]) {
 			if(controlState.Execute) {
 				return ::gpk::APPLICATION_STATE_EXIT;
 			}
 		}
 
-		if(iControl == (uint32_t)desktop.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette]) {
+		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette]) {
 			if(controlState.Execute) { 
 				::gme::mutex_guard																lock								(app.LockGUI);
 				app.PaletteColors.resize(16, 16);
@@ -168,7 +168,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 
-		if(iControl == (uint32_t)desktop.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New]) {
+		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New]) {
 			if(controlState.Execute) {
 				desktop.Items.Viewports.push_back({});
 				::gpk::SViewport																& viewportToSetUp					= desktop.Items.Viewports[desktop.Items.Viewports.size() - 1];
@@ -190,16 +190,16 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 
-		for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
-			if(iControl == (uint32_t)desktop.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]) {
-				::gpk::SControlState															& controlListStates					= gui.Controls.States[desktop.Menus[iMenu + 1].IdControl];
+		for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
+			if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]) {
+				::gpk::SControlState															& controlListStates					= gui.Controls.States[app.Menus[iMenu + 1].IdControl];
 				if(controlState.Hover) {
 					controlListStates.Hidden												= false;
 					if(controlState.Execute) 
 						desktop.SelectedMenu													= iMenu;
 				}
 				else {
-					const ::gpk::SControlMetrics													& controlListMetrics				= gui.Controls.Metrics[desktop.Menus[iMenu + 1].IdControl];
+					const ::gpk::SControlMetrics													& controlListMetrics				= gui.Controls.Metrics[app.Menus[iMenu + 1].IdControl];
 					if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlListMetrics.Total.Global) && controlListStates.Hidden == false)
 						controlListStates.Hidden												= false;
 					else if(desktop.SelectedMenu != (int32_t)iMenu)
@@ -237,15 +237,15 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	if(app.Framework.Input->ButtonDown(1) || app.Framework.Input->ButtonDown(2)) {
 		desktop.SelectedMenu														= -1;
-		for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
-			gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden			= true;
+		for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
+			gui.Controls.States[app.Menus[iMenu + 1].IdControl].Hidden			= true;
 	}
 
 	if(false == inControlArea) {
 		if(app.Framework.Input->ButtonDown(0)) {
 			desktop.SelectedMenu														= -1;
-			for(uint32_t iMenu = 0, countMenus = desktop.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
-				gui.Controls.States[desktop.Menus[iMenu + 1].IdControl].Hidden				= true;
+			for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
+				gui.Controls.States[app.Menus[iMenu + 1].IdControl].Hidden				= true;
 		}
 	}
 

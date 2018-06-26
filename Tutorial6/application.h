@@ -12,13 +12,6 @@
 
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
-	enum APP_MENU
-		{ APP_MENU_MAIN		= 0
-		, APP_MENU_FILE
-		, APP_MENU_EDIT
-		, APP_MENU_COUNT	
-		};
-
 	struct SApplication {
 						::gpk::SColorBGRA															ColorPaint;
 						::gpk::SDesktop																Desktop								= {};

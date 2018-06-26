@@ -23,6 +23,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 				::gpk::SDesktop																Desktop								= {};
 				::gpk::SFramework															Framework							;
 				::gpk::ptr_obj<::gpk::SRenderTarget>										Offscreen							= {};
+				::gpk::array_obj<::gpk::SControlList>										Menus								= {};
 				
 				::std::mutex																LockGUI;
 				::std::mutex																LockRender;
