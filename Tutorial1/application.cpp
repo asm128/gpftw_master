@@ -42,7 +42,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	int32_t																		idOptionList0				= app.OptionListMain.IdControl;
 	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.Modes		[idOptionList0].Design							= true;
+	gui.Controls.States		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
 	gui.Controls.Constraints[idOptionList0].AttachSizeToControl	.x			= idOptionList0; 
 
@@ -58,7 +58,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	app.OptionListFile.Orientation											= ::gme::MENU_ORIENTATION_VERTICAL;
 	int32_t																		idOptionList				= app.OptionListFile.IdControl;
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.Modes		[idOptionList].Design							= true;
+	gui.Controls.States		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= "File";
 	gui.Controls.Constraints[idOptionList].AttachSizeToControl.x			= idOptionList;
 	gui.Controls.Constraints[idOptionList].DockToControl.Bottom				= app.OptionListMain.IdControl;

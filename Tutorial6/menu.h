@@ -9,8 +9,8 @@ namespace gme
 							const ::gpk::view_const_string					Text;
 							int32_t											IdEvent;
 		inline constexpr													SMenuItem			
-			(	const ::gpk::view_const_string					text
-			,	int32_t											eventId		= -1
+			(	const ::gpk::view_const_string	text
+			,	int32_t							eventId		= -1
 			)	: Text		(text	)
 				, IdEvent	(eventId)
 		{}
@@ -37,18 +37,18 @@ namespace gme
 		};
 
 	static	const SMenuItem								g_MenuOptionsMain	[]		=	
-		{ {"File"		}
-		, {"Edit"		}
-		, {"View"		}
-		, {"Tool"		}
-		, {"Help"		}
+		{ {"File"			}
+		, {"Edit"			}
+		, {"View"			}
+		, {"Tool"			}
+		, {"Help"			}
 		};
 
 	static	const SMenuItem								g_MenuOptionsFile	[]		=	
-		{ {"New"		}
-		, {"Open"		}
-		, {"Save"		}
-		, {"Exit"		, APP_MENU_EVENT_EXIT}
+		{ {"New"			}
+		, {"Open"			}
+		, {"Save"			}
+		, {"Exit"			, APP_MENU_EVENT_EXIT}
 		};
 
 	static	const SMenuItem								g_MenuOptionsNew	[]		=	

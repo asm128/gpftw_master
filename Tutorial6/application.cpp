@@ -9,60 +9,62 @@
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
-			::gpk::error_t												setupGUI								(::gme::SApplication & app)						{ 
+enum DIALOG_ELEMENT_TYPE	
+	{ DIALOG_ELEMENT_TYPE_Text
+	, DIALOG_ELEMENT_TYPE_Image
+	, DIALOG_ELEMENT_TYPE_Button
+	};
+
+struct		SDialogElement	{
+				::gpk::view_const_string									Text;
+				::gpk::SRectangle2D<int32_t>								Area;
+				::gpk::ALIGN												Align;
+				DIALOG_ELEMENT_TYPE											Type;
+};
+
+static 	const ::SDialogElement											dialogAbout	[]							= 
+	{	{"Pablo Ariel Zorrilla Cepeda - asm128"	, {{0, -20}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
+	,	{"Copyright (c) - 2018"					, {{0,   0}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
+	};
+
+static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SDesktop & desktop, const ::gpk::array_view<const ::gme::SMenuItem>& menuItems, int32_t iParentList, int32_t iParentItem)		{ 
+	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
+	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
+		::gme::SMenuItem															item									= menuItems[iOption];
+		::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent); 
+	}
+	if(-1 == iParentList || -1 == iParentItem)
+		 desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
+	else
+		::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem); 
+	return 0;
+} // File
+
+static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)																												{ 
+	// --- Setup desktop  
+	desktop.IdControl														= ::gpk::controlCreate(gui);
+	gui.Controls.States		[desktop.IdControl].Design						= true;
+	gui.Controls.Constraints[desktop.IdControl].AttachSizeToControl			= {desktop.IdControl, desktop.IdControl};
+	gui.Controls.Controls	[desktop.IdControl].ColorTheme					= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
+	gui.Controls.Controls	[desktop.IdControl].Border						= 
+	gui.Controls.Controls	[desktop.IdControl].Margin						= {};
+	return 0;
+}
+
+			::gpk::error_t												setupGUI								(::gme::SApplication & app)																																	{ 
 	::gpk::SFramework															& framework								= app.Framework;
 	::gpk::SGUI																	& gui									= framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= 179; //::gpk::ASCII_COLOR_DARKGREEN * 16 + 5;
 
-	// --- Setup desktop  
-	app.Desktop.IdControl													= ::gpk::controlCreate(gui);
-	gui.Controls.Modes		[app.Desktop.IdControl].Design					= true;
-	gui.Controls.Constraints[app.Desktop.IdControl].AttachSizeToControl		= {app.Desktop.IdControl, app.Desktop.IdControl};
-	gui.Controls.Controls	[app.Desktop.IdControl].ColorTheme				= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
-	gui.Controls.Controls	[app.Desktop.IdControl].Border					= 
-	gui.Controls.Controls	[app.Desktop.IdControl].Margin					= {};
-
 	::gpk::SDesktop																& desktop								= app.Desktop;
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsMain); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsMain[iOption].Text, ::gme::g_MenuOptionsMain[iOption].IdEvent);
-	}
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsFile); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsFile[iOption].Text, ::gme::g_MenuOptionsFile[iOption].IdEvent);
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 0, 0);
-	}
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsNew); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsNew[iOption].Text, ::gme::g_MenuOptionsNew[iOption].IdEvent);
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 0);
-	}
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsOpen); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsOpen[iOption].Text, ::gme::g_MenuOptionsOpen[iOption].IdEvent);
-
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 1);
-	}
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsSave); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsSave[iOption].Text, ::gme::g_MenuOptionsSave[iOption].IdEvent);
-
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 1, 2);
-	}
-	{
-		::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop);
-		for(uint32_t iOption = 0; iOption < ::gpk::size(::gme::g_MenuOptionsHelp); ++iOption) 
-			::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], ::gme::g_MenuOptionsHelp[iOption].Text, ::gme::g_MenuOptionsHelp[iOption].IdEvent);
-
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, 0, 4);
-	}
+	::setupDesktop(gui, desktop);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain	, -1, -1);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile	, 0, 0);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, 1, 0);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, 1, 1);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, 1, 2);
+	::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, 0, 4);
 	return 0;
 }
 
@@ -82,6 +84,9 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
+	for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
+	for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
+		target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
@@ -202,7 +207,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 	}
 
-	int64_t desktopEvent = 0;
+	int64_t																			desktopEvent						= 0;
 	{
 		::gme::mutex_guard																lock								(app.LockGUI);
 		desktopEvent																= ::gpk::desktopUpdate(gui, desktop, input);
@@ -248,10 +253,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 	}
-	static char frameRatebuffer[128] = {};
+	static char																		frameRatebuffer[128] = {};
 	sprintf_s(frameRatebuffer, "Frames per second (update) : %f", framework.FrameInfo.Seconds.LastFrame);
-	gui.Controls.Text[0].Align	= ::gpk::ALIGN_BOTTOM_LEFT;
-	gui.Controls.Text[0].Text	= frameRatebuffer;
+	gui.Controls.Text[0].Align													= ::gpk::ALIGN_BOTTOM_LEFT;
+	gui.Controls.Text[0].Text													= frameRatebuffer;
  	//timer.Frame();
 	//info_printf("Update time: %f.", (float)timer.LastTimeSeconds);
 	return 0; 

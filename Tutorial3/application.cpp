@@ -66,7 +66,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	control.Margin = control.Border											= {};
 	controlConstraints.AttachSizeToControl.x								= (parentControl == -1) ? idOptionList : -1; 
 	controlConstraints.DockToControl.Bottom									= parentControl;
-	gui.Controls.Modes		[idOptionList].Design							= true;
+	gui.Controls.States		[idOptionList].Design							= true;
 	if(parentControl != -1) {
 		control.Area.Offset.x													= (parentControl == -1) ? -gui.Controls.Controls[parentControl].Area.Size.x : 0; 
 		gui.Controls.Constraints[idOptionList].DockToControl.Left				= parentControl;

@@ -183,7 +183,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	}
 	blendGNDNormals(tileGeometryView, gndData.lstTileTextureData, applicationInstance.GNDModel.TileMapping.View, applicationInstance.GNDModel.Nodes); // Blend normals.
 
-	ree_if(errored(::updateSizeDependentResources(applicationInstance)), "Cannot update offscreen and textures and this could cause an invalid memory access later on.");
+	gpk_necall(::updateSizeDependentResources(applicationInstance), "Cannot update offscreen and textures and this could cause an invalid memory access later on.");
 	applicationInstance.Scene.Camera.Points.Position						= {0, 30, -20};
 	applicationInstance.Scene.Camera.Range.Far								= 1000;
 	applicationInstance.Scene.Camera.Range.Near								= 0.001;
@@ -194,7 +194,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//::gpk::STimer																benchTimer;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
 	::gpk::SFrameInfo															& frameInfo									= framework.FrameInfo;
-	retval_info_if(1, systemRequestedExit, "Exiting because the runtime asked for close. We could also ignore this value and just continue execution if we don't want to exit.");
+	rvi_if(1, systemRequestedExit, "Exiting because the runtime asked for close. We could also ignore this value and just continue execution if we don't want to exit.");
 	{
 		mutex_guard																	lock										(applicationInstance.RenderLock);
 		if(applicationInstance.RenderTargets.size()) {
@@ -248,9 +248,9 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 			::gpk::SCoord3<float>														zoomVector									= newCamera.Position;
 			zoomVector.Normalize();
 			const double																zoomWeight									= input.MouseCurrent.Deltas.z * (input.KeyboardCurrent.KeyState[VK_SHIFT] ? 10 : 1) / 240.;
-			newCamera.Position															+= zoomVector * zoomWeight * .5;
+			newCamera.Position														+= zoomVector * zoomWeight * .5;
 		}
-		applicationInstance.Scene.Camera.Points										= newCamera;
+		applicationInstance.Scene.Camera.Points									= newCamera;
 		::gpk::SMatrix4<float>														& viewMatrix								= applicationInstance.Scene.Transforms.View;
 		::gpk::SCameraVectors														newCameraVectors							= applicationInstance.Scene.Camera.Vectors;
 		newCameraVectors.Up														= {0, 1, 0};

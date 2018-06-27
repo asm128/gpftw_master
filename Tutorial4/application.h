@@ -21,6 +21,7 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 				::gpk::ptr_obj<::gpk::SRenderTarget>						Offscreen							= {};
 				::gpk::array_obj<::gpk::ptr_obj<::gpk::SRenderTarget>>		PaintScreen							= {};
 				::gpk::array_obj<::gpk::SControlList>						Menus								= {};
+				int32_t														SelectedMenu						= -1;
 
 				::gpk::SDesktop												Desktop								= {};
 				::gme::SAppPaletteGrid										PaletteControl;

@@ -14,7 +14,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	int32_t																		idOptionList0							= app.Menu.ControlListMain.IdControl;
 	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, 22}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.Modes		[idOptionList0].Design							= true;
+	gui.Controls.States		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
 	gui.Controls.Constraints[idOptionList0].AttachSizeToControl.x			= idOptionList0; //app.OptionList.IdControls[firstOption];
 
@@ -36,7 +36,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	const ::gpk::SCoord2<int32_t>												& parentOffset							= gui.Controls.Controls[parentControl].Area.Offset;
 	gui.Controls.Controls	[idOptionList].Area								= {parentOffset, {100, }};
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_TOP_LEFT;
-	gui.Controls.Modes		[idOptionList].Design							= true;
+	gui.Controls.States		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= gui.Controls.Text[parentControl].Text;
 	gui.Controls.Constraints[idOptionList].DockToControl.Bottom				= parentControl;
 	gui.Controls.States		[idOptionList].Hidden							= true;
