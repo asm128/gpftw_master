@@ -218,6 +218,21 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		case ::gme::APP_MENU_EVENT_NONE			: break;
 		case ::gme::APP_MENU_EVENT_NEW_PALETTE	: ::paletteCreate		(app);	break;
 		case ::gme::APP_MENU_EVENT_NEW_IMAGE	: ::paintViewportCreate	(app);	break;
+		case ::gme::APP_MENU_EVENT_SAVE_IMAGE	: 
+		{
+			for(uint32_t iImage = 0; iImage < app.PaintScreen.size(); ++iImage) {
+				FILE * fp = 0;
+				::gpk::array_pod<ubyte_t>	data;
+				::gpk::pngFileWrite(app.PaintScreen[iImage]->Color.View, data);	
+
+				char buffer [128] = {};
+				sprintf_s(buffer, "Viewport_%u.png", iImage);
+				fopen_s(&fp, buffer, "wb");
+				fwrite(data.begin(), 1, data.size(), fp);
+				fclose(fp);
+			}
+			break;
+		}
 		}
 
 	for(uint32_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
