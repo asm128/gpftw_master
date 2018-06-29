@@ -73,15 +73,15 @@ namespace gme
 	, TILE_FACE_FACING								facing_direction
 	, int32_t										textureIndex
 	, SModelNode									& generated
-	, ::gpk::grid_view<::gme::STileMapping>			& out_mapping
+	, ::gpk::view_grid<::gme::STileMapping>			& out_mapping
 	);
 
 			::gpk::error_t												blendGNDNormals								
-	( const ::gpk::grid_view<::gme::STileHeights		>	& tileGeometryView
-	, const ::gpk::grid_view<::gme::STileFaceSkinMapping>	& skinMappingView
-	, const ::gpk::array_view<::gme::STileSkin			>	& lstTileSkinData
-	, const ::gpk::grid_view<::gme::STileMapping		>	& tileMappingView
-	, ::gpk::array_view<::gme::SModelNode				>	& gndModelNodes
+	( const ::gpk::view_grid<::gme::STileHeights		>	& tileGeometryView
+	, const ::gpk::view_grid<::gme::STileFaceSkinMapping>	& skinMappingView
+	, const ::gpk::view_array<::gme::STileSkin			>	& lstTileSkinData
+	, const ::gpk::view_grid<::gme::STileMapping		>	& tileMappingView
+	, ::gpk::view_array<::gme::SModelNode				>	& gndModelNodes
 	);
 }
 #pragma pack(pop)

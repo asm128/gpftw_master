@@ -150,7 +150,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 
 	applicationInstance.GNDModel.Nodes		.resize(gndData.TextureNames.size() * 6);
 	applicationInstance.GNDModel.TileMapping.resize(gndData.Metrics.Size);
-	::gpk::grid_view<::gpk::STileGeometryGND>									tileGeometryView								= {gndData.lstTileGeometryData.begin(), gndData.Metrics.Size};
+	::gpk::view_grid<::gpk::STileGeometryGND>									tileGeometryView								= {gndData.lstTileGeometryData.begin(), gndData.Metrics.Size};
 	::gpk::SMinMax<float>														heightMinMax									= {};
 	for(uint32_t iTile = 0; iTile < gndData.lstTileGeometryData.size(); ++iTile)
 		if(gndData.lstTileGeometryData[iTile].SkinMapping.SkinIndexTop != -1) {
@@ -160,7 +160,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 			}
 		}
 	applicationInstance.TextureMinimap.resize(gndData.Metrics.Size);
-	::gpk::grid_view<::gpk::SColorBGRA>											& minimapView									= applicationInstance.TextureMinimap.View;
+	::gpk::view_grid<::gpk::SColorBGRA>											& minimapView									= applicationInstance.TextureMinimap.View;
 	const float																	heightRange										= heightMinMax.Max - heightMinMax.Min;
 	for(uint32_t y = 0, yMax = minimapView.metrics().y; y < yMax; ++y)
 	for(uint32_t x = 0, xMax = minimapView.metrics().x; x < xMax; ++x) {
@@ -297,7 +297,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//::gpk::STimer																benchTimer;
 	//::gpk::STimer																benchTimer0;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
-	const ::gpk::grid_view<::gpk::SColorBGRA>									& fontAtlasView								= applicationInstance.TextureFont.View;
+	const ::gpk::view_grid<::gpk::SColorBGRA>									& fontAtlasView								= applicationInstance.TextureFont.View;
 	::gpk::SRenderTarget														newRenderTargetGND							= {};
 	::gpk::ptr_obj<::gpk::SRenderTarget>										newRenderTargetComposite					= {};
 	{
@@ -310,7 +310,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	::gpk::clearTarget(newRenderTargetGND);
 	::gpk::clearTarget(*newRenderTargetComposite);
 	::gpk::SFramework::TOffscreen												& offscreen									= newRenderTargetComposite->Color;
-	::gpk::grid_view<::gpk::SColorBGRA>											& offscreenView								= offscreen.View;
+	::gpk::view_grid<::gpk::SColorBGRA>											& offscreenView								= offscreen.View;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 	for(uint32_t y = 0, yMax = offscreenMetrics.y; y < yMax; ++y) {	// Draw background gradient.
 		const uint8_t																colorHeight									= (uint8_t)(y / 10);
@@ -332,7 +332,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	error_if(errored(pixelsDrawn1), "??");
 	for(uint32_t y = 0, yMax = newRenderTargetGND.Color.View.metrics().y; y < yMax; ++y) 
 		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), newRenderTargetGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
-	const ::gpk::grid_view<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;
+	const ::gpk::view_grid<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;
 	::gpk::grid_copy(offscreenView, minimapView, ::gpk::SCoord2<int32_t>{(int32_t)(offscreenMetrics.x - minimapView.metrics().x), 0});
 
 	static constexpr const ::gpk::SCoord2<int32_t>								sizeCharCell								= {9, 16};

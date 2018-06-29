@@ -79,19 +79,19 @@ struct SThreadArgs {
 };
 
 struct SDrawTrianglesArgs {
-						const ::gpk::array_view	<::gpk::STriangleWeights<uint32_t>>		VertexIndexList	;
-						const ::gpk::array_view	<::gpk::SCoord3<float>>					Vertices		;
-						const ::gpk::array_view	<::gpk::SCoord2<float>>					Uvs				;
-						const ::gpk::grid_view	<::gpk::SColorBGRA>						TextureView		;
+						const ::gpk::view_array	<::gpk::STriangleWeights<uint32_t>>		VertexIndexList	;
+						const ::gpk::view_array	<::gpk::SCoord3<float>>					Vertices		;
+						const ::gpk::view_array	<::gpk::SCoord2<float>>					Uvs				;
+						const ::gpk::view_grid	<::gpk::SColorBGRA>						TextureView		;
 						double															FFar			;
 						double															FNear			;
 						const ::gpk::SCoord3<float>										LightDir		;
 						::SRenderCache													RenderCache		;
-						::gpk::grid_view	<uint32_t>									TargetDepthView	;
-						::gpk::grid_view	<::gpk::SColorBGRA>							TargetView		;
+						::gpk::view_grid	<uint32_t>									TargetDepthView	;
+						::gpk::view_grid	<::gpk::SColorBGRA>							TargetView		;
 						const ::gpk::SColorFloat										DiffuseColor	;						
 						const ::gpk::SColorFloat										AmbientColor	;						
-						const ::gpk::array_view<::gpk::SLightInfoRSW>					Lights			;
+						const ::gpk::view_array<::gpk::SLightInfoRSW>					Lights			;
 						uint32_t														* PixelsDrawn	;
 						uint32_t														* PixelsSkipped	;
 };

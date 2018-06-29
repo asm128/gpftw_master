@@ -55,7 +55,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	, int32_t														parentControl
 	, ::gpk::ALIGN													menuAlign
 	, ::gpk::CONTROL_LIST_DIRECTION									direction
-	, const ::gpk::array_view<const ::gpk::view_const_string>		& menuOptions 
+	, const ::gpk::view_array<const ::gpk::view_const_string>		& menuOptions 
 	) { 
 	::gpk::controlListInitialize(gui, menuControlList);
 	menuControlList.Orientation												= direction;

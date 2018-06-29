@@ -20,12 +20,12 @@
 	, const ::gpk::STriangleWeights<double>										& pixelWeights	
 	, const ::gpk::STriangle3D<float>											& positions
 	, const ::gpk::STriangle2D<float>											& uvs
-	, const ::gpk::grid_view<::gpk::SColorBGRA>									& textureColors
+	, const ::gpk::view_grid<::gpk::SColorBGRA>									& textureColors
 	, int32_t																	iTriangle
 	, const ::gpk::SCoord3<double>												& lightDir
 	, const ::gpk::SColorFloat													& diffuseColor								
 	, const ::gpk::SColorFloat													& ambientColor								
-	, const ::gpk::array_view<::gpk::SLightInfoRSW>								& lights
+	, const ::gpk::view_array<::gpk::SLightInfoRSW>								& lights
 	) {	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 	::gpk::SColorFloat															lightColor									= {0, 0, 0, 1}; //((::gpk::RED * pixelWeights.A) + (::gpk::GREEN * pixelWeights.B) + (::gpk::BLUE * pixelWeights.C));
 	const ::gpk::STriangle3D<float>												& normals									= renderCache.TransformedNormalsVertex[iTriangle];
@@ -87,8 +87,8 @@
 }
 
 static				::gpk::error_t										transformTriangles							
-	( const ::gpk::array_view<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
-	, const ::gpk::array_view<::gpk::SCoord3<float>>				& vertices
+	( const ::gpk::view_array<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
+	, const ::gpk::view_array<::gpk::SCoord3<float>>				& vertices
 	, double														fFar
 	, double														fNear
 	, const ::gpk::SMatrix4<float>									& xWorld
@@ -147,8 +147,8 @@ static				::gpk::error_t										transformTriangles
 }
 
 static				::gpk::error_t										transformNormals
-	( const ::gpk::array_view<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
-	, const ::gpk::array_view<::gpk::SCoord3<float>>				& normals
+	( const ::gpk::view_array<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
+	, const ::gpk::view_array<::gpk::SCoord3<float>>				& normals
 	, const ::gpk::SMatrix4<float>									& xWorld
 	, ::SRenderCache												& renderCache
 	) {	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
@@ -173,19 +173,19 @@ static				::gpk::error_t										transformNormals
 
 
 static				::gpk::error_t										drawTriangles
-	( const ::gpk::array_view	<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
-	, const ::gpk::array_view	<::gpk::SCoord3<float>>				& vertices
-	, const ::gpk::array_view	<::gpk::SCoord2<float>>				& uvs
-	, const ::gpk::grid_view	<::gpk::SColorBGRA>					& textureView
+	( const ::gpk::view_array	<::gpk::STriangleWeights<uint32_t>>	& vertexIndexList
+	, const ::gpk::view_array	<::gpk::SCoord3<float>>				& vertices
+	, const ::gpk::view_array	<::gpk::SCoord2<float>>				& uvs
+	, const ::gpk::view_grid	<::gpk::SColorBGRA>					& textureView
 	, double														fFar
 	, double														fNear
 	, const ::gpk::SCoord3<float>									& lightDir
 	, ::SRenderCache												& renderCache
-	, ::gpk::grid_view	<uint32_t>									& targetDepthView
-	, ::gpk::grid_view	<::gpk::SColorBGRA>							& targetView
+	, ::gpk::view_grid	<uint32_t>									& targetDepthView
+	, ::gpk::view_grid	<::gpk::SColorBGRA>							& targetView
 	, const ::gpk::SColorFloat										& diffuseColor								
 	, const ::gpk::SColorFloat										& ambientColor								
-	, const ::gpk::array_view<::gpk::SLightInfoRSW>					& lights
+	, const ::gpk::view_array<::gpk::SLightInfoRSW>					& lights
 	, uint32_t														* pixelsDrawn
 	, uint32_t														* pixelsSkipped
 	) {	// --- 
@@ -301,7 +301,7 @@ static				::gpk::error_t										drawTriangles
 		for(uint32_t iGNDTexture = 0; iGNDTexture < applicationInstance.GNDData.TextureNames.size(); ++iGNDTexture) {
 			for(uint32_t iFacingDirection = 0; iFacingDirection < 6; ++iFacingDirection) {
 				const ::gpk::SModelNodeGND													& gndNode									= applicationInstance.GNDModel.Nodes[applicationInstance.GNDData.TextureNames.size() * iFacingDirection + iGNDTexture];
-				const ::gpk::grid_view<::gpk::SColorBGRA>									& gndNodeTexture							= applicationInstance.TexturesGND	[iGNDTexture].View;
+				const ::gpk::view_grid<::gpk::SColorBGRA>									& gndNodeTexture							= applicationInstance.TexturesGND	[iGNDTexture].View;
 				::SRenderCache																& renderCache1								= *applicationInstance.RenderCaches[iCache++];//applicationInstance.RenderCache[0];
 				gpk_necall(renderCache1.TransformedNormalsVertex.resize(renderCache1.Triangle3dIndices.size()), "Out of memory?");
 				transformNormals(gndNode.VertexIndices, gndNode.Normals, xWorld, renderCache1);

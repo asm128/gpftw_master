@@ -27,7 +27,7 @@ static 	const ::SDialogElement											dialogAbout	[]							=
 	,	{"Copyright (c) - 2018"					, {{0,   0}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
 	};
 
-static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SDesktop & desktop, const ::gpk::array_view<const ::gme::SMenuItem>& menuItems, int32_t iParentList, int32_t iParentItem)		{ 
+static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SDesktop & desktop, const ::gpk::view_array<const ::gme::SMenuItem>& menuItems, int32_t iParentList, int32_t iParentItem)		{ 
 	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
 	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
 		::gme::SMenuItem															item									= menuItems[iOption];
@@ -102,8 +102,8 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 }
 
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)						{ 
-	::gpk::ptr_obj<::gpk::SRenderTarget>										newPaintScreen						= {};
-	int32_t																		indexViewport						= -1;
+	::gpk::ptr_obj<::gpk::SRenderTarget>										newPaintScreen							= {};
+	int32_t																		indexViewport							= -1;
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{

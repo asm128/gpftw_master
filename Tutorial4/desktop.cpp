@@ -32,7 +32,7 @@
 	return 0;
 }
 
-			::gpk::error_t											gme::paletteColorsSet					(::gpk::SGUI& gui, ::gme::SAppPaletteGrid& palette, const ::gpk::grid_view<::gpk::SColorBGRA>& colors)			{
+			::gpk::error_t											gme::paletteColorsSet					(::gpk::SGUI& gui, ::gme::SAppPaletteGrid& palette, const ::gpk::view_grid<::gpk::SColorBGRA>& colors)			{
 	if(-1 == palette.IdControl)
 		::gme::paletteInitialize(gui, palette);
 
