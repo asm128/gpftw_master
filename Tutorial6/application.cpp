@@ -1,6 +1,6 @@
 #include "menu.h"
 #include "application.h"
-#include "gpk_bitmap_file.h"
+#include "gpk_png.h"
 #include "gpk_bitmap_target.h"
 #include "gpk_grid_copy.h"
 
