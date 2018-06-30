@@ -36,6 +36,13 @@ namespace gme
 		, APP_MENU_EVENT_INVALID			= -1
 		};
 
+	::gpk::error_t										getMenuItemIndex			(const ::gpk::view_array<const SMenuItem>& items, const ::gpk::view_const_string& text)					{
+		for(uint32_t iItem = 0; iItem < items.size(); ++iItem) 
+			if(text == items[iItem].Text)
+				return iItem;
+		return 0;
+	}
+
 	static	const SMenuItem								g_MenuOptionsMain	[]		=	
 		{ {"File"			}
 		, {"Edit"			}

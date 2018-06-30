@@ -31,13 +31,13 @@ static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SD
 	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
 	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
 		::gme::SMenuItem															item									= menuItems[iOption];
-		::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent); 
+		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "??"); 
 	}
 	if(-1 == iParentList || -1 == iParentItem)
 		 desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
 	else
-		::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem); 
-	return 0;
+		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "Invalid parent?"); 
+	return idMenu;
 } // File
 
 static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)		{ 
@@ -59,12 +59,17 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	::setupDesktop(gui, desktop);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain	, -1, -1);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile	, 0, 0);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, 1, 0);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, 1, 1);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, 1, 2);
-	::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, 0, 4);
+	::gpk::error_t																idMenuMain								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
+	::gpk::error_t																idOptionFile							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File");
+	::gpk::error_t																idMenuFile								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, idOptionFile);
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, idOptionFile);
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, idOptionFile);
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, idOptionFile);
+	::gpk::error_t																idOptionEdit							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit");
+	::gpk::error_t idEdit = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, idOptionEdit); idEdit;
+
+	::gpk::error_t																idOptionHelp							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Help");
+	::gpk::error_t idHelp = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, idMenuMain, idOptionHelp); idHelp;
 	return 0;
 }
 
@@ -187,11 +192,12 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	int32_t																		hoveredControl							= -1;
 	::gpk::SInput																& input									= *app.Framework.Input;
 	{
-		::gme::mutex_guard															lock									(app.LockGUI);
+		//::gme::mutex_guard															lock									(app.LockGUI);
 		hoveredControl															= ::gpk::guiProcessInput(gui, input);
 	}
 
 	if(input.MouseCurrent.Deltas.z) {
+		//::gme::mutex_guard															lock									(app.LockGUI);
 		gui.Zoom.ZoomLevel														+= input.MouseCurrent.Deltas.z * (1.0f / (120 * 4));
 		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size, true);
 	}
