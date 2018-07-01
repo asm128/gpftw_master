@@ -17,26 +17,26 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 		};
 
 	struct SApplication {
-				::gpk::SFramework											Framework							;
-				::gpk::ptr_obj<::gpk::SRenderTarget>						Offscreen							= {};
-				::gpk::array_obj<::gpk::ptr_obj<::gpk::SRenderTarget>>		PaintScreen							= {};
-				::gpk::array_obj<::gpk::SControlList>						Menus								= {};
-				int32_t														SelectedMenu						= -1;
+				::gpk::SFramework														Framework							;
+				::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>		Offscreen							= {};
+				::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>	PaintScreen							= {};
+				::gpk::array_obj<::gpk::SControlList>									Menus								= {};
+				int32_t																	SelectedMenu						= -1;
 
-				::gpk::SDesktop												Desktop								= {};
-				::gme::SAppPaletteGrid										PaletteControl;
-				::gpk::STexture<::gpk::SColorBGRA>							PaletteColors;
+				::gpk::SDesktop															Desktop								= {};
+				::gme::SAppPaletteGrid													PaletteControl;
+				::gpk::STexture<::gpk::SColorBGRA>										PaletteColors;
 				
 
-				::std::mutex												LockGUI;
-				::std::mutex												LockRender;
+				::std::mutex															LockGUI;
+				::std::mutex															LockRender;
 
-				::gpk::SColorBGRA											ColorPaint;
+				::gpk::SColorBGRA														ColorPaint;
 
-																			SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
+																						SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};
 
-	typedef	::std::lock_guard<::std::mutex>									mutex_guard;
+	typedef	::std::lock_guard<::std::mutex>											mutex_guard;
 
 
 } // namespace

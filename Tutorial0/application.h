@@ -97,40 +97,40 @@ struct SDrawTrianglesArgs {
 };
 
 struct SApplication {
-						::gpk::SFramework												Framework							;
+						::gpk::SFramework																		Framework							;
 
-						::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>			TexturesGND							= {};
-						::gpk::STexture<::gpk::SColorBGRA>								TextureFont							= {};
-						::gpk::STextureMonochrome<uint32_t>								TextureFontMonochrome				= {};
-						::gpk::STexture<::gpk::SColorBGRA>								TextureMinimap						= {};
-						::gpk::SGUI														GUI									= {};
+						::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>									TexturesGND							= {};
+						::gpk::STexture<::gpk::SColorBGRA>														TextureFont							= {};
+						::gpk::STextureMonochrome<uint32_t>														TextureFontMonochrome				= {};
+						::gpk::STexture<::gpk::SColorBGRA>														TextureMinimap						= {};
+						::gpk::SGUI																				GUI									= {};
 
-						::gpk::SModelPivot	<float>										GridPivot							= {};
+						::gpk::SModelPivot	<float>																GridPivot							= {};
 
-						::gpk::SScene													Scene;
-						::gpk::SCoord3<float>											LightDirection						= {10, 5, 0};
-						::gpk::SGNDFileContents											GNDData								= {};
-						::gpk::SRSWFileContents											RSWData								= {};
-						::gpk::array_obj<::gpk::SRSMFileContents>						RSMData								= {};
+						::gpk::SScene																			Scene;
+						::gpk::SCoord3<float>																	LightDirection						= {10, 5, 0};
+						::gpk::SGNDFileContents																	GNDData								= {};
+						::gpk::SRSWFileContents																	RSWData								= {};
+						::gpk::array_obj<::gpk::SRSMFileContents>												RSMData								= {};
 
-						::gpk::SModelGND												GNDModel							= {};
-						//::gpk::array_obj<::gpk::SModelRSM>							RSMModel							= {};
+						::gpk::SModelGND																		GNDModel							= {};
+						//::gpk::array_obj<::gpk::SModelRSM>													RSMModel							= {};
 
 						// cabildo 2954
-						::SRenderCache													RenderCache	[RENDER_THREAD_COUNT]	= {};
-						::SApplicationThreads											Threads								= {};
-						::SThreadArgs													ThreadArgs	[RENDER_THREAD_COUNT]	= {};
+						::SRenderCache																			RenderCache	[RENDER_THREAD_COUNT]	= {};
+						::SApplicationThreads																	Threads								= {};
+						::SThreadArgs																			ThreadArgs	[RENDER_THREAD_COUNT]	= {};
 
-						::gpk::array_obj<::gpk::ptr_obj<::gpk::SRenderTarget>>			RenderTargets						= {};
-						::gpk::array_obj<::gpk::ptr_obj<::SRenderCache		>>			RenderCaches						= {};
+						::gpk::array_obj<::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>>		RenderTargets						= {};
+						::gpk::array_obj<::gpk::ptr_obj<::SRenderCache		>>									RenderCaches						= {};
 
-						::std::mutex													RenderLock;
-						::std::mutex													UpdateLock;
+						::std::mutex																			RenderLock;
+						::std::mutex																			UpdateLock;
 
-																						SApplication						(::gpk::SRuntimeValues& runtimeValues)			noexcept	: Framework(runtimeValues) {}
+																												SApplication						(::gpk::SRuntimeValues& runtimeValues)			noexcept	: Framework(runtimeValues) {}
 };
 
-typedef				::std::lock_guard<::std::mutex>									mutex_guard;
+typedef				::std::lock_guard<::std::mutex>															mutex_guard;
 
 
 #endif // APPLICATION_H_098273498237423

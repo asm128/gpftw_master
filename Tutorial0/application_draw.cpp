@@ -224,7 +224,7 @@ static				::gpk::error_t										drawTriangles
 	return 0;
 }
 
-					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget& renderTargetGND)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>& renderTargetGND)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 	::gpk::SFramework::TOffscreen												& offscreen									= renderTargetGND.Color;
 	::gpk::STexture<uint32_t>													& offscreenDepth							= renderTargetGND.DepthStencil;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();

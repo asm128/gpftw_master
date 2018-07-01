@@ -90,7 +90,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												draw									(::gme::SApplication & app)						{ 
 	::gpk::STimer																timer;
-	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
+	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
@@ -110,8 +110,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)						{ 
-	::gpk::ptr_obj<::gpk::SRenderTarget>										newPaintScreen						= {};
-	int32_t																		indexViewport						= -1;
+	::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>							newPaintScreen							= {};
+	int32_t																		indexViewport							= -1;
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
@@ -125,12 +125,11 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	}
 	newPaintScreen															= app.PaintScreen[indexViewport];
 	::gpk::SViewport															& viewportToSetUp					= desktop.Items.Viewports[indexViewport];
-	newPaintScreen->Color		.resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
-	newPaintScreen->DepthStencil.resize(newPaintScreen->Color.View.metrics());
-	::gpk::clearTarget(*newPaintScreen);
+	newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
+	memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
-		gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->Color.View;
+		gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->View;
 	}
 	return 0;
 }
@@ -276,14 +275,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
 					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
 					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::drawLine(app.PaintScreen[iViewport]->Color.View.metrics(), lineToDraw, pointsToDraw);
+					::gpk::drawLine(app.PaintScreen[iViewport]->View.metrics(), lineToDraw, pointsToDraw);
 					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->Color.View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
+						::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
 				}
 				else if(app.Framework.Input->ButtonDown(0)) {
 					::gpk::SCoord2<int32_t>															mousePos							= {framework.Input->MouseCurrent.Position.x, framework.Input->MouseCurrent.Position.y};
 					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->Color.View, mousePos, app.ColorPaint, 0.1f, 5.0);
+					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, mousePos, app.ColorPaint, 0.1f, 5.0);
 				}
 			}
 		}

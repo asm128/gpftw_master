@@ -60,16 +60,12 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	::setupDesktop(gui, desktop);
 	::gpk::error_t																idMenuMain								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
-	::gpk::error_t																idOptionFile							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File");
-	::gpk::error_t																idMenuFile								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, idOptionFile);
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, idOptionFile);
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, idOptionFile);
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, idOptionFile);
-	::gpk::error_t																idOptionEdit							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit");
-	::gpk::error_t idEdit = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, idOptionEdit); idEdit;
-
-	::gpk::error_t																idOptionHelp							= ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Help");
-	::gpk::error_t idHelp = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, idMenuMain, idOptionHelp); idHelp;
+	::gpk::error_t																idMenuFile								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File"));
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Open"));
+		::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Save"));
+	::gpk::error_t idEdit = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit")); idEdit;
+	::gpk::error_t idHelp = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Help")); idHelp;
 	return 0;
 }
 
@@ -80,18 +76,59 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	ree_if(0 == framework.Input.create(), "Out of memory?");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(::setupGUI(app), "Unknown error.");
+
+	{
+		unsigned char		test	[]		= "unixunix";
+		unsigned __int8		* c1			= (unsigned __int8		*)&test[0];
+		unsigned short		* s1			= (unsigned short		*)&test[0];
+		unsigned short		* s2			= (unsigned short		*)&test[2];
+		unsigned short		* s3			= (unsigned short		*)&test[4];
+		unsigned short		* s4			= (unsigned short		*)&test[6];
+		unsigned int		* i1			= (unsigned int			*)&test[0];
+		unsigned int		* i2			= (unsigned int			*)&test[4];
+		unsigned long long	* ll1			= (unsigned long long	*)&test[0];
+		c1	;
+		s1	;
+		s2	;
+		s3	;
+		s4	;
+		i1	;
+		i2	;
+		ll1	;
+		Sleep(1);
+	}
+	{
+		unsigned int		test			= 'unix';
+		unsigned __int8		* c1			= (unsigned __int8		*)&((char*)(&test))[0];
+		unsigned short		* s1			= (unsigned short		*)&((char*)(&test))[0];
+		unsigned short		* s2			= (unsigned short		*)&((char*)(&test))[2];
+		unsigned short		* s3			= (unsigned short		*)&((char*)(&test))[4];
+		unsigned short		* s4			= (unsigned short		*)&((char*)(&test))[6];
+		unsigned int		* i1			= (unsigned int			*)&((char*)(&test))[0];
+		unsigned int		* i2			= (unsigned int			*)&((char*)(&test))[4];
+		unsigned long long	* ll1			= (unsigned long long	*)&((char*)(&test))[0];
+		c1	;
+		s1	;
+		s2	;
+		s3	;
+		s4	;
+		i1	;
+		i2	;
+		ll1	;
+		Sleep(1);
+	}
 	return 0; 
 }
 
 			::gpk::error_t												draw									(::gme::SApplication & app)							{ 
 	::gpk::STimer																timer;
-	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
+	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
-	for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
-	for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
-		target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();
+	//for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
+	//for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
+	//	target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
@@ -110,7 +147,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	for(uint32_t iImage = 0; iImage < app.PaintScreen.size(); ++iImage) {
 		FILE																		* fp									= 0;
 		::gpk::array_pod<ubyte_t>													data;
-		ce_if(errored(::gpk::pngFileWrite(app.PaintScreen[iImage]->Color.View, data)), "Failed to encode PNG!");			
+		ce_if(errored(::gpk::pngFileWrite(app.PaintScreen[iImage]->View, data)), "Failed to encode PNG!");			
 		if(data.size()) {
 			char																		buffer [128]							= {};
 			sprintf_s(buffer, "Viewport_%u.png", iImage);
@@ -125,7 +162,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 }
 
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)							{ 
-	::gpk::ptr_obj<::gpk::SRenderTarget>										newPaintScreen							= {};
+	::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>							newPaintScreen							= {};
 	int32_t																		indexViewport							= -1;
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
@@ -140,12 +177,11 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	}
 	newPaintScreen															= app.PaintScreen[indexViewport];
 	::gpk::SViewport															& viewportToSetUp					= desktop.Items.Viewports[indexViewport];
-	newPaintScreen->Color		.resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
-	newPaintScreen->DepthStencil.resize(newPaintScreen->Color.View.metrics());
-	::gpk::clearTarget(*newPaintScreen);
+	newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
+	memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
-		gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->Color.View;
+		gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->View;
 	}
 	return 0;
 }
@@ -265,15 +301,15 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
 					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
 					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::SRenderTarget															* paintScreen						= app.PaintScreen[iViewport];
-					::gpk::drawLine(paintScreen->Color.View.metrics(), lineToDraw, pointsToDraw);
+					::gpk::STexture<::gpk::SColorBGRA>												* paintScreen						= app.PaintScreen[iViewport];
+					::gpk::drawLine(paintScreen->View.metrics(), lineToDraw, pointsToDraw);
 					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(paintScreen->Color.View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
+						::gpk::drawPixelBrightness(paintScreen->View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
 				}
 				else if(input.ButtonDown(0)) {
 					::gpk::SCoord2<int32_t>															mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
 					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->Color.View, mousePos, app.ColorPaint, 0.1f, 5.0);
+					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, mousePos, app.ColorPaint, 0.1f, 5.0);
 				}
 			}
 		}

@@ -24,21 +24,21 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 #pragma pack(pop)
 
 	struct SApplication {
-		::gpk::SFramework								Framework;
-		::gpk::ptr_obj<::gpk::SRenderTarget>			Offscreen							= {};
+		::gpk::SFramework													Framework;
+		::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>	Offscreen							= {};
 
-		int32_t											IdExit								= -1;
-		::gme::SOptionList								OptionListMain						= {};
-		::gme::SOptionList								OptionListFile						= {};
+		int32_t																IdExit								= -1;
+		::gme::SOptionList													OptionListMain						= {};
+		::gme::SOptionList													OptionListFile						= {};
 
-		::std::mutex									LockGUI;
-		::std::mutex									LockRender;
-
-
-		::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>	TexturesTest;
+		::std::mutex														LockGUI;
+		::std::mutex														LockRender;
 
 
-																SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
+		::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>			TexturesTest;
+
+
+																		SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};
 
 	typedef ::std::lock_guard<::std::mutex>			mutex_guard;

@@ -31,38 +31,27 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 	struct SViewport {
 				int32_t														IdControl							= -1;
 				::gpk::array_static<int32_t, ::gme::VIEWPORT_CONTROL_COUNT>	IdControls							= {};
-//				::gpk::STexture<::gpk::SColorBGRA>							ClientTarget						= {};
 	};
 
 			::gpk::error_t												viewportInitialize					(::gpk::SGUI& gui, ::gme::SViewport& viewport);
 			::gpk::error_t												viewportResize						(::gpk::SGUI& gui, ::gme::SViewport& viewport);
 
-	//struct SMenu {
-	//			::gpk::SControlList											Items								= {};
-	//			int32_t														ItemSelected						= -1;	// index to Items
-	//};
-
-	//struct SAppDesktop {
-	//			int32_t														ControlDesktop						= -1;
-	//			::gpk::array_obj<SMenu>										Menus;
-	//};
-
 	struct SApplication {
-				::gpk::SFramework											Framework;
-				::gpk::ptr_obj<::gpk::SRenderTarget>						Offscreen							= {};
-				::gpk::ptr_obj<::gpk::SRenderTarget>						PaintScreen							= {};
+				::gpk::SFramework													Framework;
+				::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>	Offscreen							= {};
+				::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>					PaintScreen							= {};
 
-				int32_t														ControlDesktop						= -1;
-				::gme::SAppMenu												Menu								= {};
-				::gme::SViewport											PaintViewport						= {};
+				int32_t																ControlDesktop						= -1;
+				::gme::SAppMenu														Menu								= {};
+				::gme::SViewport													PaintViewport						= {};
 
-				::std::mutex												LockGUI;
-				::std::mutex												LockRender;
+				::std::mutex														LockGUI;
+				::std::mutex														LockRender;
 
-																			SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
+																					SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};
 
-	typedef	::std::lock_guard<::std::mutex>									mutex_guard;
+	typedef	::std::lock_guard<::std::mutex>										mutex_guard;
 
 
 } // namespace

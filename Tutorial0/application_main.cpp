@@ -133,7 +133,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 			}
 		if(bNotLoaded) {
 			sprintf_s(temp, "%s%s%s", ragnaPath, "model\\", &rsmFilename[0]);	
-			error_if(errored(::gpk::rsmFileLoad(rsmData, ::gpk::view_const_string(temp))), "Failed to load file: %s.", temp);
+			error_if(errored(::gpk::rsmFileLoad(rsmData, ::gpk::view_const_string(temp, (uint32_t)-1))), "Failed to load file: %s.", temp);
 		}
 	}
 	for(uint32_t iLight = 0; iLight < rswData.RSWLights.size(); ++iLight) {
@@ -200,7 +200,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 		if(applicationInstance.RenderTargets.size()) {
 			if(applicationInstance.RenderTargets.size() > 1)
 				warning_printf("2 Buffers have been rendered.");
-			::gpk::ptr_obj<::gpk::SRenderTarget>										renderTarget								= applicationInstance.RenderTargets[applicationInstance.RenderTargets.size() - 1];
+			::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			renderTarget								= applicationInstance.RenderTargets[applicationInstance.RenderTargets.size() - 1];
 			if(renderTarget->Color.View.metrics() == framework.MainDisplay.Size)
 				framework.MainDisplayOffscreen											= renderTarget;
 			applicationInstance.RenderTargets.resize(0);
@@ -291,15 +291,15 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	return 0;
 }
 
-					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget& renderTargetGND);
+					::gpk::error_t										drawGND										(::SApplication& applicationInstance, ::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>& renderTargetGND);
 
 					::gpk::error_t										draw										(::SApplication& applicationInstance)											{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 	//::gpk::STimer																benchTimer;
 	//::gpk::STimer																benchTimer0;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
 	const ::gpk::view_grid<::gpk::SColorBGRA>									& fontAtlasView								= applicationInstance.TextureFont.View;
-	::gpk::SRenderTarget														newRenderTargetGND							= {};
-	::gpk::ptr_obj<::gpk::SRenderTarget>										newRenderTargetComposite					= {};
+	::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>							newRenderTargetGND							= {};
+	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			newRenderTargetComposite					= {};
 	{
 		const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= framework.MainDisplay.Size;
 		newRenderTargetGND		.Color			.resize(offscreenMetrics);

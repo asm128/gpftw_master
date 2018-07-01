@@ -124,7 +124,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												draw									(::gme::SApplication & app)						{ 
 	::gpk::STimer																timer;
-	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
+	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
@@ -217,12 +217,11 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					::gme::mutex_guard																lock								(app.LockGUI);
 					if(-1 == app.PaintViewport.IdControl)
 						::gme::viewportInitialize(gui, app.PaintViewport);
-					::gpk::ptr_obj<::gpk::SRenderTarget>											newPaintScreen						= {};
+					::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>								newPaintScreen						= {};
 					newPaintScreen.create();
-					newPaintScreen->Color			.resize(gui.Controls.Controls[app.PaintViewport.IdControls[::gme::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
-					newPaintScreen->DepthStencil	.resize(newPaintScreen	->Color.View.metrics());
-					::gpk::clearTarget(*newPaintScreen);
-					gui.Controls.Controls[app.PaintViewport.IdControls[::gme::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->Color.View;
+					newPaintScreen->resize(gui.Controls.Controls[app.PaintViewport.IdControls[::gme::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
+					memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
+					gui.Controls.Controls[app.PaintViewport.IdControls[::gme::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->View;
 					app.PaintScreen																= newPaintScreen;
 				}
 			}
@@ -237,14 +236,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	if(app.Framework.Input->ButtonDown(1) || app.Framework.Input->ButtonDown(2)) {
 		app.Menu.ItemSelectedMain														= -1;
 		for(uint32_t iMenu = 0, countMenus = app.Menu.Items.size() - 1; iMenu < countMenus; ++iMenu) 
-			gui.Controls.States[app.Menu.Items[iMenu + 1].IdControl].Hidden			= true;
+			gui.Controls.States[app.Menu.Items[iMenu + 1].IdControl].Hidden					= true;
 	}
 
 	if(false == inControlArea) {
 		if(app.Framework.Input->ButtonDown(0)) {
 			app.Menu.ItemSelectedMain														= -1;
 			for(uint32_t iMenu = 0, countMenus = app.Menu.Items.size() - 1; iMenu < countMenus; ++iMenu) 
-				gui.Controls.States[app.Menu.Items[iMenu + 1].IdControl].Hidden			= true;
+				gui.Controls.States[app.Menu.Items[iMenu + 1].IdControl].Hidden					= true;
 		}
 	}
 	{
@@ -256,14 +255,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
 					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
 					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::drawLine(app.PaintScreen->Color.View.metrics(), lineToDraw, pointsToDraw);
+					::gpk::drawLine(app.PaintScreen->View.metrics(), lineToDraw, pointsToDraw);
 					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(app.PaintScreen->Color.View, pointsToDraw[iPoint], ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
+						::gpk::drawPixelBrightness(app.PaintScreen->View, pointsToDraw[iPoint], ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
 				}
 				else if(app.Framework.Input->ButtonDown(0)) {
 					::gpk::SCoord2<int32_t>															mousePos							= {framework.Input->MouseCurrent.Position.x, framework.Input->MouseCurrent.Position.y};
 					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(app.PaintScreen->Color.View, mousePos, ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
+					::gpk::drawPixelBrightness(app.PaintScreen->View, mousePos, ::gpk::SColorBGRA{::gpk::YELLOW}, 0.1f, 5.0);
 				}
 			}
 		}

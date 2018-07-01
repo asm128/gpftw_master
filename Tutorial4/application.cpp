@@ -86,7 +86,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												draw									(::gme::SApplication & app)						{ 
 	::gpk::STimer																timer;
-	::gpk::ptr_obj<::gpk::SRenderTarget>										target;
+	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>										target;
 	target.create();
 	target->Color		.resize(app.Framework.MainDisplay.Size);
 	target->DepthStencil.resize(target->Color.View.metrics());
@@ -124,28 +124,28 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size, true);
 	}
 
-	::gpk::array_pod<uint32_t>														controlsToProcess					= {};
+	::gpk::array_pod<uint32_t>													controlsToProcess						= {};
 	::gpk::guiGetProcessableControls(gui, controlsToProcess);
 
-	::gpk::SDesktop																	& desktop							= app.Desktop;
-	bool																			inControlArea						= false;
-	bool																			anyControlPressed					= false;
+	::gpk::SDesktop																& desktop								= app.Desktop;
+	bool																		inControlArea							= false;
+	bool																		anyControlPressed						= false;
 	for(uint32_t iControlToProcess = 0, countControls = controlsToProcess.size(); iControlToProcess < countControls; ++iControlToProcess) {
-		const uint32_t																	iControl							= controlsToProcess[iControlToProcess];
-		const ::gpk::SControlState														& controlState						= gui.Controls.States[iControl];
-		const ::gpk::SControlMetrics													& controlMetrics					= gui.Controls.Metrics[iControl];
+		const uint32_t																iControl								= controlsToProcess[iControlToProcess];
+		const ::gpk::SControlState													& controlState							= gui.Controls.States[iControl];
+		const ::gpk::SControlMetrics												& controlMetrics						= gui.Controls.Metrics[iControl];
 		if(iControl != (uint32_t)desktop.IdControl)
-			inControlArea																= inControlArea || ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlMetrics.Total.Global);
+			inControlArea															= inControlArea || ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlMetrics.Total.Global);
 
 		if(controlState.Pressed && (int32_t)iControl != desktop.IdControl)
 			anyControlPressed															= true;
 
 		if(controlState.Execute) {
 			info_printf("Executed %u.", iControl);
-			app.SelectedMenu													= -1;
+			app.SelectedMenu														= -1;
 			for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) {
 				if(false == ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), gui.Controls.Metrics[app.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]].Total.Global)) 
-					gui.Controls.States[app.Menus[iMenu + 1].IdControl].Hidden			= true;
+					gui.Controls.States[app.Menus[iMenu + 1].IdControl].Hidden				= true;
 			}
 		}
 		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_Exit]) {
@@ -156,10 +156,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_EDIT].IdControls[::gme::MENU_OPTION_EDIT_Palette]) {
 			if(controlState.Execute) { 
-				::gme::mutex_guard																lock								(app.LockGUI);
+				::gme::mutex_guard															lock								(app.LockGUI);
 				app.PaletteColors.resize(16, 16);
 				for(uint32_t iColor = 0; iColor < app.PaletteColors.Texels.size(); ++iColor)
-					app.PaletteColors.Texels[iColor]											= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
+					app.PaletteColors.Texels[iColor]										= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
 				if(-1 == app.PaletteControl.IdControl) {
 					::gme::paletteInitialize(gui, app.PaletteControl);
 					::gpk::controlSetParent(gui, app.PaletteControl.IdControl, desktop.IdControl);
@@ -171,20 +171,19 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_FILE].IdControls[::gme::MENU_OPTION_FILE_New]) {
 			if(controlState.Execute) {
 				desktop.Items.Viewports.push_back({});
-				::gpk::SViewport																& viewportToSetUp					= desktop.Items.Viewports[desktop.Items.Viewports.size() - 1];
+				::gpk::SViewport															& viewportToSetUp					= desktop.Items.Viewports[desktop.Items.Viewports.size() - 1];
 				{
-					::gme::mutex_guard																lock								(app.LockGUI);
+					::gme::mutex_guard															lock								(app.LockGUI);
 					::gpk::viewportInitialize(gui, viewportToSetUp);
 					::gpk::controlSetParent(gui, viewportToSetUp.IdControl, desktop.IdControl);
 				}
-				::gpk::ptr_obj<::gpk::SRenderTarget>											newPaintScreen						= {};
+				::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>			newPaintScreen						= {};
 				newPaintScreen.create();
-				newPaintScreen->Color			.resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
-				newPaintScreen->DepthStencil	.resize(newPaintScreen->Color.View.metrics());
-				::gpk::clearTarget(*newPaintScreen);
+				newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
+				memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 				{
-					::gme::mutex_guard																lock								(app.LockGUI);
-					gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->Color.View;
+					::gme::mutex_guard															lock								(app.LockGUI);
+					gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image	= newPaintScreen->View;
 				}
 				app.PaintScreen.push_back(newPaintScreen);
 			}
@@ -192,14 +191,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 		for(uint32_t iMenu = 0, countMenus = app.Menus.size() - 1; iMenu < countMenus; ++iMenu) 
 			if(iControl == (uint32_t)app.Menus[::gme::APP_MENU_MAIN].IdControls[iMenu]) {
-				::gpk::SControlState															& controlListStates					= gui.Controls.States[app.Menus[iMenu + 1].IdControl];
+				::gpk::SControlState														& controlListStates					= gui.Controls.States[app.Menus[iMenu + 1].IdControl];
 				if(controlState.Hover) {
 					controlListStates.Hidden												= false;
 					if(controlState.Execute) 
 						app.SelectedMenu														= iMenu;
 				}
 				else {
-					const ::gpk::SControlMetrics													& controlListMetrics				= gui.Controls.Metrics[app.Menus[iMenu + 1].IdControl];
+					const ::gpk::SControlMetrics												& controlListMetrics				= gui.Controls.Metrics[app.Menus[iMenu + 1].IdControl];
 					if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlListMetrics.Total.Global) && controlListStates.Hidden == false)
 						controlListStates.Hidden												= false;
 					else if(app.SelectedMenu != (int32_t)iMenu)
@@ -212,7 +211,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	if(paletteControl.IdControl != -1) {
 		for(uint32_t iColorControl = 1, colorControlStop = app.PaletteControl.IdControls.size(); iColorControl < colorControlStop; ++iColorControl) {
 			if(gui.Controls.States[(uint32_t)paletteControl.IdControls[iColorControl]].Execute) {
-				app.ColorPaint	=	app.PaletteColors.Texels[iColorControl - 1];
+				app.ColorPaint																= app.PaletteColors.Texels[iColorControl - 1];
 				break;
 			}
 		}
@@ -225,7 +224,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					break;
 				}
 			if(framework.Input->MouseCurrent.Deltas.x || framework.Input->MouseCurrent.Deltas.y) {
-				gui.Controls.Controls	[paletteControl.IdControl].Area.Offset			+= {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
+				gui.Controls.Controls	[paletteControl.IdControl].Area.Offset				+= {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
 				::gpk::controlMetricsInvalidate(gui, paletteControl.IdControl);
 			}
 		}
@@ -258,14 +257,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
 					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
 					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::drawLine(app.PaintScreen[iViewport]->Color.View.metrics(), lineToDraw, pointsToDraw);
+					::gpk::drawLine(app.PaintScreen[iViewport]->View.metrics(), lineToDraw, pointsToDraw);
 					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->Color.View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
+						::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
 				}
 				else if(app.Framework.Input->ButtonDown(0)) {
 					::gpk::SCoord2<int32_t>															mousePos							= {framework.Input->MouseCurrent.Position.x, framework.Input->MouseCurrent.Position.y};
 					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->Color.View, mousePos, app.ColorPaint, 0.1f, 5.0);
+					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, mousePos, app.ColorPaint, 0.1f, 5.0);
 				}
 			}
 		}
