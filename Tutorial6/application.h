@@ -5,7 +5,7 @@
 #include "gpk_ro_gnd.h"
 #include "gpk_ro_rsm.h"
 
-#include "context_editor_image.h"
+#include "editor_image.h"
 
 #include <mutex>
 

@@ -1,4 +1,3 @@
-#include "menu.h"
 #include "application.h"
 #include "gpk_png.h"
 #include "gpk_bitmap_target.h"
@@ -6,6 +5,8 @@
 
 //#define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
 #include "gpk_app_impl.h"
+
+#include "menu_main.h"
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
@@ -201,17 +202,6 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::guiGetProcessableControls(gui, controlsToProcess);
 
 	::gpk::SDesktop																& desktop							= app.Desktop;
-	bool																		inControlArea						= false;
-	for(uint32_t iControlToProcess = 0, countControls = controlsToProcess.size(); iControlToProcess < countControls; ++iControlToProcess) {
-		const uint32_t																iControl							= controlsToProcess[iControlToProcess];
-		const ::gpk::SControlState													& controlState						= gui.Controls.States[iControl];
-		const ::gpk::SControlMetrics												& controlMetrics					= gui.Controls.Metrics[iControl];
-		if(iControl != (uint32_t)desktop.IdControl)
-			inControlArea															= inControlArea || ::gpk::in_range(gui.CursorPos.Cast<int32_t>(), controlMetrics.Total.Global);
-		if(controlState.Execute) 
-			info_printf("Executed %u.", iControl);
-	}
-
 	for(uint32_t iPalette = 0; iPalette < desktop.Items.PaletteGrids.size(); ++iPalette) {
 		if(desktop.Items.PaletteGrids.Unused[iPalette])
 			continue;
@@ -246,13 +236,13 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		::gpk::SViewport																& currentViewport					= desktop.Items.Viewports[iViewport];
 		if(desktop.Items.Viewports.Unused[iViewport] || currentViewport.ControlType != -1)
 			continue;
-
-		//if(gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size != gui.Controls.Controls[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image.metrics().Cast<int32_t>()) {
-		//	app.PaintScreen[iViewport]->Color		.resize(gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size.Cast<uint32_t>());
-		//	app.PaintScreen[iViewport]->DepthStencil.resize(gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size.Cast<uint32_t>());
-		//	gui.Controls.Controls[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Image = app.PaintScreen[iViewport]->Color.View;
-		//}
 		int32_t																			idTarget							= currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
+		//const ::gpk::SCoord2<int32_t>													& currentViewportClientSize			= gui.Controls.Metrics[idTarget].Client.Global.Size;
+		//if(currentViewportClientSize != gui.Controls.Controls[idTarget].Image.metrics().Cast<int32_t>()) {
+		//	app.EditorsImage[iViewport].PaintScreen->resize(currentViewportClientSize.Cast<uint32_t>());
+		//	app.EditorsImage[iViewport].PaintScreen->resize(currentViewportClientSize.Cast<uint32_t>());
+		//	gui.Controls.Controls[idTarget].Image = app.EditorsImage[iViewport].PaintScreen->View;
+		//}
 		const ::gpk::SCoord2<int32_t>													paintOffset							= gui.Controls.Metrics[idTarget].Client.Global.Offset;
 		/*if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), {paintOffset, (paintOffset + gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size)}))*/ {
 			const ::gpk::SCoord2<int32_t>													mouseDeltas							= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};

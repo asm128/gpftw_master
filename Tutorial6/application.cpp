@@ -1,4 +1,3 @@
-#include "menu.h"
 #include "application.h"
 #include "gpk_png.h"
 #include "gpk_bitmap_target.h"
@@ -6,6 +5,8 @@
 
 //#define GPK_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
 #include "gpk_app_impl.h"
+
+#include "menu_main.h"
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
@@ -83,8 +84,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::STimer																timer;
 	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
-	target->Color		.resize(app.Framework.MainDisplay.Size);
-	target->DepthStencil.resize(target->Color.View.metrics());
+	target->resize(app.Framework.MainDisplay.Size, {}, (uint32_t)-1);
 	//for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
 	//for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
 	//	target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();

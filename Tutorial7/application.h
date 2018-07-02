@@ -5,7 +5,8 @@
 #include "gpk_ro_gnd.h"
 #include "gpk_ro_rsm.h"
 
-#include "context_editor_image.h"
+#include "editor_image.h"
+#include "gpk_ascii_target.h"
 
 #include <mutex>
 
@@ -14,12 +15,17 @@
 
 namespace gme // I'm gonna use a different namespace in order to test a few things about the macros.
 {
+	struct SConsole {
+						::gpk::SDesktop															Desktop								= {};
+
+						::gpk::SASCIITarget														Target;
+	};
+
 	struct SApplication {
 						::gpk::SDesktop															Desktop								= {};
 						::gpk::SFramework														Framework							;
 						::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>		Offscreen							= {};
 
-						
 						::std::mutex															LockGUI;
 						::std::mutex															LockRender;
 
