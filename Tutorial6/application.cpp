@@ -76,47 +76,6 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	ree_if(0 == framework.Input.create(), "Out of memory?");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(::setupGUI(app), "Unknown error.");
-
-	{
-		unsigned char		test	[]		= "unixunix";
-		unsigned __int8		* c1			= (unsigned __int8		*)&test[0];
-		unsigned short		* s1			= (unsigned short		*)&test[0];
-		unsigned short		* s2			= (unsigned short		*)&test[2];
-		unsigned short		* s3			= (unsigned short		*)&test[4];
-		unsigned short		* s4			= (unsigned short		*)&test[6];
-		unsigned int		* i1			= (unsigned int			*)&test[0];
-		unsigned int		* i2			= (unsigned int			*)&test[4];
-		unsigned long long	* ll1			= (unsigned long long	*)&test[0];
-		c1	;
-		s1	;
-		s2	;
-		s3	;
-		s4	;
-		i1	;
-		i2	;
-		ll1	;
-		Sleep(1);
-	}
-	{
-		unsigned int		test			= 'unix';
-		unsigned __int8		* c1			= (unsigned __int8		*)&((char*)(&test))[0];
-		unsigned short		* s1			= (unsigned short		*)&((char*)(&test))[0];
-		unsigned short		* s2			= (unsigned short		*)&((char*)(&test))[2];
-		unsigned short		* s3			= (unsigned short		*)&((char*)(&test))[4];
-		unsigned short		* s4			= (unsigned short		*)&((char*)(&test))[6];
-		unsigned int		* i1			= (unsigned int			*)&((char*)(&test))[0];
-		unsigned int		* i2			= (unsigned int			*)&((char*)(&test))[4];
-		unsigned long long	* ll1			= (unsigned long long	*)&((char*)(&test))[0];
-		c1	;
-		s1	;
-		s2	;
-		s3	;
-		s4	;
-		i1	;
-		i2	;
-		ll1	;
-		Sleep(1);
-	}
 	return 0; 
 }
 
@@ -144,10 +103,10 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 }
 
 			::gpk::error_t												paintViewportSave						(::gme::SApplication & app)							{ 
-	for(uint32_t iImage = 0; iImage < app.PaintScreen.size(); ++iImage) {
+	for(uint32_t iImage = 0; iImage < app.EditorsImage.size(); ++iImage) {
 		FILE																		* fp									= 0;
 		::gpk::array_pod<ubyte_t>													data;
-		ce_if(errored(::gpk::pngFileWrite(app.PaintScreen[iImage]->View, data)), "Failed to encode PNG!");			
+		ce_if(errored(::gpk::pngFileWrite(app.EditorsImage[iImage].PaintScreen->View, data)), "Failed to encode PNG!");			
 		if(data.size()) {
 			char																		buffer [128]							= {};
 			sprintf_s(buffer, "Viewport_%u.png", iImage);
@@ -169,14 +128,14 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
 		indexViewport															= ::gpk::desktopCreateViewport(gui, desktop);
-		if(indexViewport >= (int32_t)app.PaintScreen.size()) {
-			app.PaintScreen.resize(indexViewport + 1);
+		if(indexViewport >= (int32_t)app.EditorsImage.size()) {
+			app.EditorsImage.resize(indexViewport + 1);
 			newPaintScreen.create();
-			app.PaintScreen[indexViewport]											= newPaintScreen;
+			app.EditorsImage[indexViewport].PaintScreen								= newPaintScreen;
 		}
 	}
-	newPaintScreen															= app.PaintScreen[indexViewport];
-	::gpk::SViewport															& viewportToSetUp					= desktop.Items.Viewports[indexViewport];
+	newPaintScreen															= app.EditorsImage[indexViewport].PaintScreen;
+	::gpk::SViewport															& viewportToSetUp						= desktop.Items.Viewports[indexViewport];
 	newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
 	memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 	{
@@ -207,9 +166,9 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		gui.Controls.Controls[viewportToSetUp.IdControl].Area.Size				= {256 + vpNCSpacing.x, 256 + vpNCSpacing.y + gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TITLE]].Area.Size.y};
 		paletteGrid.IdControl													= viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
 		gui.Controls.Controls[paletteGrid.IdControl].Area.Size					= {256, 256};
-		::gpk::guiUpdateMetrics(gui, gui.LastSize, false);
-		::gpk::paletteGridColorsSet(gui, paletteGrid, paletteData.View);
-		::gpk::controlDelete(gui, oldPaletteControl);
+		::gpk::guiUpdateMetrics		(gui, gui.LastSize, false);
+		::gpk::paletteGridColorsSet	(gui, paletteGrid, paletteData.View);
+		::gpk::controlDelete		(gui, oldPaletteControl);
 	}
 	return 0;
 }
@@ -261,7 +220,8 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		if(paletteControl.IdControl != -1) 
 			for(uint32_t iColorControl = 0, colorControlStop = paletteControl.IdControls.size(); iColorControl < colorControlStop; ++iColorControl) {
 				if(gui.Controls.States[(uint32_t)paletteControl.IdControls[iColorControl]].Execute) {
-					app.ColorPaint															= paletteControl.Colors[(iColorControl) / paletteControl.Colors.metrics().x][(iColorControl) % paletteControl.Colors.metrics().x];
+					for(uint32_t iContextImage = 0; iContextImage < app.EditorsImage.size(); ++iContextImage) 
+						app.EditorsImage[iContextImage].ColorPaint								= paletteControl.Colors[(iColorControl) / paletteControl.Colors.metrics().x][(iColorControl) % paletteControl.Colors.metrics().x];
 					break;
 				}
 			}
@@ -274,11 +234,11 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	}
 	if(desktopEvent)
 		switch(desktopEvent) {
-		case ::gme::APP_MENU_EVENT_EXIT			: return 1;
-		case ::gme::APP_MENU_EVENT_NONE			: break;
-		case ::gme::APP_MENU_EVENT_NEW_PALETTE	: ::paletteCreate		(app);	break;
-		case ::gme::APP_MENU_EVENT_NEW_IMAGE	: ::paintViewportCreate	(app);	break;
-		case ::gme::APP_MENU_EVENT_SAVE_IMAGE	: ::paintViewportSave	(app);	break;
+		case ::gme::APP_MENU_EVENT_NONE					: break;
+		case ::gme::APP_MENU_EVENT_EXIT					: return 1;
+		case ::gme::APP_MENU_EVENT_NEW_PALETTE			: ::paletteCreate		(app);	break;
+		case ::gme::APP_MENU_EVENT_NEW_CONTEXT_IMAGE	: ::paintViewportCreate	(app);	break;
+		case ::gme::APP_MENU_EVENT_SAVE_IMAGE			: ::paintViewportSave	(app);	break;
 			break;
 		}
 
@@ -297,19 +257,19 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		/*if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), {paintOffset, (paintOffset + gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size)}))*/ {
 			const ::gpk::SCoord2<int32_t>													mouseDeltas							= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
 			if(gui.Controls.States[idTarget].Pressed) {
+				::gme::SContextEditorImage														contextImage						= app.EditorsImage[iViewport];
 				if(mouseDeltas.LengthSquared()) {
 					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
 					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
 					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::STexture<::gpk::SColorBGRA>												* paintScreen						= app.PaintScreen[iViewport];
-					::gpk::drawLine(paintScreen->View.metrics(), lineToDraw, pointsToDraw);
+					::gpk::drawLine(contextImage.PaintScreen->View.metrics(), lineToDraw, pointsToDraw);
 					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(paintScreen->View, pointsToDraw[iPoint], app.ColorPaint, 0.1f, 5.0);
+						::gpk::drawPixelBrightness(contextImage.PaintScreen->View, pointsToDraw[iPoint], contextImage.ColorPaint, 0.1f, 5.0);
 				}
 				else if(input.ButtonDown(0)) {
 					::gpk::SCoord2<int32_t>															mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
 					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(app.PaintScreen[iViewport]->View, mousePos, app.ColorPaint, 0.1f, 5.0);
+					::gpk::drawPixelBrightness(contextImage.PaintScreen->View, mousePos, contextImage.ColorPaint, 0.1f, 5.0);
 				}
 			}
 		}

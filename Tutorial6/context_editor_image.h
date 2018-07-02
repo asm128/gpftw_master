@@ -8,10 +8,10 @@
 namespace gme
 {
 	struct SContextEditorImage {
-		::gpk::SDesktop																Desktop;	
-		::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>		PaintScreen							= {};	// One for each paint viewport
-		::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>		PaletteColors							;	// One for each palette viewport
-		
+		::gpk::SDesktop											Desktop								= {};	
+		::gpk::SColorBGRA										ColorPaint							= {0xFF, 0xFF, 0xFF, 0xFF};
+
+		::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>		PaintScreen							= {};	
 	};
 }
 
