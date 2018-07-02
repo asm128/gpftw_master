@@ -2,7 +2,7 @@
 #include "gpk_label.h"
 
 			::gpk::error_t											gme::paletteInitialize					(::gpk::SGUI& gui, ::gme::SAppPaletteGrid& palette)				{
-	const uint32_t															heightTitleBar							= gui.FontCharSize.y + 4;
+	const int16_t															heightTitleBar							= gui.FontCharSize.y + 4;
 	const uint32_t															widthTarget								= 256;
 	const uint32_t															heightTarget							= 256;
 	static int32_t															coutnerPalette							= 0;
@@ -12,7 +12,7 @@
 		::gpk::SControl															& control								= gui.Controls.Controls[palette.IdControl];
 		const uint32_t															widthViewport							= widthTarget + control.Border.Left + control.Border.Right + control.Margin.Left + control.Margin.Right;
 		const uint32_t															heightViewport							= heightTarget + heightTitleBar + control.Border.Top + control.Border.Bottom + control.Margin.Top + control.Margin.Bottom;
-		control.Area.Size													= {(int32_t)widthViewport, (int32_t)heightViewport};
+		control.Area.Size													= {(int16_t)widthViewport, (int16_t)heightViewport};
 		control.Align														= ::gpk::ALIGN_CENTER;
 	}
 	{
@@ -83,8 +83,8 @@
 		palette.IdControls[paletteElemIndex]								= ::gpk::controlCreate(gui);
 		::gpk::SControl															& control								= gui.Controls.Controls[palette.IdControls[paletteElemIndex]];
 		control.ColorTheme													= themeIndex + 1;
-		control.Area.Offset													= {(int32_t)(controlSize.x * x), (int32_t)(controlSize.y * y + offsetY)};
-		control.Area.Size													= controlSize.Cast<int32_t>();
+		control.Area.Offset													= {(int16_t)(controlSize.x * x), (int16_t)(controlSize.y * y + offsetY)};
+		control.Area.Size													= controlSize.Cast<int16_t>();
 		::gpk::controlSetParent(gui, palette.IdControls[paletteElemIndex], palette.IdControl);
 	}
 	return 0;

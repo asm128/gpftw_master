@@ -43,8 +43,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	if(direction == ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL) 
 		control.Area															= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};	// Height should not be hardcoded
 	else {
-		const ::gpk::SCoord2<int32_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int32_t>{};
-		control.Area															= ::gpk::SRectangle2D<int32_t>{parentOffset, {100, }};	// Width should not be hardcoded
+		const ::gpk::SCoord2<int16_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int16_t>{};
+		control.Area															= ::gpk::SRectangle2D<int16_t>{parentOffset, {100, }};	// Width should not be hardcoded
 	}
 
 	for(uint32_t iOption = 0; iOption < menuOptions.size(); ++iOption)
@@ -224,7 +224,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					break;
 				}
 			if(framework.Input->MouseCurrent.Deltas.x || framework.Input->MouseCurrent.Deltas.y) {
-				gui.Controls.Controls	[paletteControl.IdControl].Area.Offset				+= {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
+				gui.Controls.Controls	[paletteControl.IdControl].Area.Offset				+= {(int16_t)framework.Input->MouseCurrent.Deltas.x, (int16_t)framework.Input->MouseCurrent.Deltas.y};
 				::gpk::controlMetricsInvalidate(gui, paletteControl.IdControl);
 			}
 		}

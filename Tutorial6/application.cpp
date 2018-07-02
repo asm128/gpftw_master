@@ -162,7 +162,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		viewportToSetUp.ControlType												= ::gpk::GUI_CONTROL_TYPE_PaletteGrid;
 		viewportToSetUp.IdDesktopElement										= indexPalette;
 		const int32_t																oldPaletteControl					= paletteGrid.IdControl;
-		const ::gpk::SCoord2<int32_t>												vpNCSpacing							= ::gpk::controlNCSpacing(gui.Controls.Controls[viewportToSetUp.IdControl]);
+		const ::gpk::SCoord2<int16_t>												vpNCSpacing							= ::gpk::controlNCSpacing(gui.Controls.Controls[viewportToSetUp.IdControl]);
 		gui.Controls.Controls[viewportToSetUp.IdControl].Area.Size				= {256 + vpNCSpacing.x, 256 + vpNCSpacing.y + gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TITLE]].Area.Size.y};
 		paletteGrid.IdControl													= viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
 		gui.Controls.Controls[paletteGrid.IdControl].Area.Size					= {256, 256};

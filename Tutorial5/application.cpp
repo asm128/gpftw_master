@@ -45,10 +45,10 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	//}
 
 	if(direction == ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL) 
-		control.Area															= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};	// Height should not be hardcoded
+		control.Area															= {{}, {0, gui.FontCharSize.y + 4}};	// Height should not be hardcoded
 	else {
-		const ::gpk::SCoord2<int32_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int32_t>{};
-		control.Area															= ::gpk::SRectangle2D<int32_t>{parentOffset, {100, }};	// Width should not be hardcoded
+		const ::gpk::SCoord2<int16_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int16_t>{};
+		control.Area															= ::gpk::SRectangle2D<int16_t>{parentOffset, {100, }};	// Width should not be hardcoded
 	}
 
 	for(uint32_t iOption = 0; iOption < menuOptions.size(); ++iOption)
@@ -151,7 +151,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		viewportToSetUp.ControlType												= ::gpk::GUI_CONTROL_TYPE_PaletteGrid;
 		viewportToSetUp.IdDesktopElement										= indexPalette;
 		const int32_t																oldPaletteControl					= paletteGrid.IdControl;
-		const ::gpk::SCoord2<int32_t>												vpNCSpacing							= ::gpk::controlNCSpacing(gui.Controls.Controls[viewportToSetUp.IdControl]);
+		const ::gpk::SCoord2<int16_t>												vpNCSpacing							= ::gpk::controlNCSpacing(gui.Controls.Controls[viewportToSetUp.IdControl]);
 		gui.Controls.Controls[viewportToSetUp.IdControl].Area.Size				= {256 + vpNCSpacing.x, 256 + vpNCSpacing.y + gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TITLE]].Area.Size.y};
 		paletteGrid.IdControl													= viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
 		gui.Controls.Controls[paletteGrid.IdControl].Area.Size	= {256, 256};

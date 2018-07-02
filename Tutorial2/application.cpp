@@ -33,7 +33,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gpk::controlListInitialize(gui, app.Menu.ControlListFile);
 	app.Menu.ControlListFile.Orientation									= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
 	int32_t																		idOptionList							= app.Menu.ControlListFile.IdControl;
-	const ::gpk::SCoord2<int32_t>												& parentOffset							= gui.Controls.Controls[parentControl].Area.Offset;
+	const ::gpk::SCoord2<int16_t>												& parentOffset							= gui.Controls.Controls[parentControl].Area.Offset;
 	gui.Controls.Controls	[idOptionList].Area								= {parentOffset, {100, }};
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_TOP_LEFT;
 	gui.Controls.States		[idOptionList].Design							= true;

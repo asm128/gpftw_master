@@ -10,7 +10,7 @@
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												gme::viewportInitialize					(::gpk::SGUI& gui, ::gme::SViewport& viewport)				{
-	const uint32_t																heightTitleBar							= gui.FontCharSize.y + 4;
+	const int16_t																heightTitleBar							= gui.FontCharSize.y + 4;
 	const uint32_t																widthTarget								= 800;
 	const uint32_t																heightTarget							= uint32_t(widthTarget * (9 / 16.0));
 	{
@@ -18,7 +18,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::SControl																& control								= gui.Controls.Controls	[viewport.IdControl];
 		const uint32_t																widthViewport							= widthTarget + control.Border.Left + control.Border.Right + control.Margin.Left + control.Margin.Right;
 		const uint32_t																heightViewport							= heightTarget + heightTitleBar + control.Border.Top + control.Border.Bottom + control.Margin.Top + control.Margin.Bottom;
-		control.Area.Size														= {(int32_t)widthViewport, (int32_t)heightViewport};
+		control.Area.Size														= {(int16_t)widthViewport, (int16_t)heightViewport};
 		control.Align															= ::gpk::ALIGN_CENTER;
 	}
 	{
@@ -39,7 +39,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		::gpk::SControlConstraints													& controlConstraints					= gui.Controls.Constraints	[viewport.IdControls[VIEWPORT_CONTROL_TARGET]];
 		controlText.Align														= ::gpk::ALIGN_CENTER_TOP;
 		control.Border = control.Margin											= {};
-		control.Area.Size														= {(int32_t)widthTarget, (int32_t)heightTarget};
+		control.Area.Size														= {(int16_t)widthTarget, (int16_t)heightTarget};
 		control.Area.Offset	.y													= heightTitleBar;
 		control.ColorTheme														= 60;
 		controlConstraints.AttachSizeToControl.x								= viewport.IdControls[VIEWPORT_CONTROL_TARGET];
@@ -83,8 +83,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	if(direction == ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL) 
 		control.Area															= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};	// Height should not be hardcoded
 	else {
-		const ::gpk::SCoord2<int32_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int32_t>{};
-		control.Area															= ::gpk::SRectangle2D<int32_t>{parentOffset, {100, }};	// Width should not be hardcoded
+		const ::gpk::SCoord2<int16_t>												parentOffset							= (parentControl != -1) ? gui.Controls.Controls[parentControl].Area.Offset : ::gpk::SCoord2<int16_t>{};
+		control.Area															= ::gpk::SRectangle2D<int16_t>{parentOffset, {100, }};	// Width should not be hardcoded
 	}
 
 	for(uint32_t iOption = 0; iOption < menuOptions.size(); ++iOption)
@@ -227,9 +227,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			}
 		}
 		if(iControl == (uint32_t)app.PaintViewport.IdControls[::gme::VIEWPORT_CONTROL_TITLE]) {
-			if(controlState.Pressed && (framework.Input->MouseCurrent.Deltas.x || framework.Input->MouseCurrent.Deltas.y)) {
-				gui.Controls.Controls[app.PaintViewport.IdControl].Area.Offset += {framework.Input->MouseCurrent.Deltas.x, framework.Input->MouseCurrent.Deltas.y};
-			}
+			if(controlState.Pressed && (framework.Input->MouseCurrent.Deltas.x || framework.Input->MouseCurrent.Deltas.y)) 
+				gui.Controls.Controls[app.PaintViewport.IdControl].Area.Offset					+= {(int16_t)framework.Input->MouseCurrent.Deltas.x, (int16_t)framework.Input->MouseCurrent.Deltas.y};
 		}
 	}
 
