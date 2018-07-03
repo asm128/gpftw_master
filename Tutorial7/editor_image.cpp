@@ -20,7 +20,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::error_t																idMenuMain								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
 	::gpk::error_t																idMenuFile								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File"));
 	idMenuFile;
-	//	::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
+	::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
 	//	::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Open"));
 	//	::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Save"));
 	//::gpk::error_t idEdit = ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit")); idEdit;
@@ -43,7 +43,8 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 }
 
 				::gpk::error_t											gme::contextEditorImageUpdate			(::gpk::SGUI & gui, ::gme::SContextEditorImage & editor, ::gpk::SInput & input)				{
-	::gpk::error_t																command									= (::gpk::error_t)::gpk::desktopUpdate(gui, editor.Desktop, input);
+	::gpk::SDesktop																& desktop								= editor.Desktop;
+	::gpk::error_t																command									= (::gpk::error_t)::gpk::desktopUpdate(gui, desktop, input);
 	char																		buffer [128]							= {};
 	static	int32_t																nameIndex								= 0;
 	switch(command) {
@@ -56,8 +57,8 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		memset(editor.PaintScreen->Texels.begin(), 0, editor.PaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));	
 		break;
 	case ::gme::EDIT_IMAGE_MENU_EVENT_EXIT: 
-		::gpk::controlDelete(gui, editor.Desktop.IdControl);
-		editor.Desktop.IdControl												= -1;
+		::gpk::controlDelete(gui, desktop.IdControl);
+		desktop.IdControl														= -1;
 		return 0;
 	}
 	++nameIndex;

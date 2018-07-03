@@ -71,8 +71,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::STimer																timer;
 	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
-	target->Color		.resize(app.Framework.MainDisplay.Size);
-	target->DepthStencil.resize(target->Color.View.metrics());
+	target->resize(app.Framework.MainDisplay.Size, ::gpk::DARKBLUE / 2.0, 0xFFFFFFFF);
 	//for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
 	//for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
 	//	target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();
@@ -108,7 +107,10 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::SViewport															& viewportToSetUp						= desktop.Items.Viewports[indexViewport];
 	gui.Controls.Controls[viewportToSetUp.IdControl].Area.Offset			= gui.CursorPos.Cast<int16_t>();
 	gui.Controls.Controls[viewportToSetUp.IdControl].Area.Offset			+= ::gpk::SCoord2<int16_t>{20, 20};
-	gpk_necall(::gme::contextEditorImageInitialize(gui, app.EditorsImage[indexViewport], viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]), "");
+	{
+		::gme::mutex_guard															lock								(app.LockGUI);
+		gpk_necall(::gme::contextEditorImageInitialize(gui, app.EditorsImage[indexViewport], viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]), "");
+	}
 	gpk_necall(newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>()), "Out of memory?");
 	memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 	{
