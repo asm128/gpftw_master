@@ -1,4 +1,4 @@
-#include "gpk_texture.h"
+#include "gpk_image.h"
 
 #ifndef TERRAIN_H_029734908234
 #define TERRAIN_H_029734908234
