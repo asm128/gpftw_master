@@ -29,8 +29,8 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 				::std::mutex																LockGUI;
 				::std::mutex																LockRender;
 
-				::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>		PaintScreen							= {};
-				::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>		PaletteColors						= {};
+				::gpk::array_obj<::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>>		PaintScreen							= {};
+				::gpk::array_obj<::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>>		PaletteColors						= {};
 
 																							SApplication						(::gpk::SRuntimeValues & runtimeValues)		: Framework(runtimeValues)		{}
 	};

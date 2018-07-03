@@ -110,7 +110,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)						{ 
-	::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>							newPaintScreen							= {};
+	::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>							newPaintScreen							= {};
 	int32_t																		indexViewport							= -1;
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
@@ -135,7 +135,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 }
 
 			::gpk::error_t												paletteCreate							(::gme::SApplication & app)						{ 
- 	::gpk::STexture<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
+ 	::gpk::SImage<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
 	gpk_necall(paletteData.resize(16, 16), "Out of memory?");
 	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
 		paletteData.Texels[iColor]													= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];

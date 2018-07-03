@@ -19,13 +19,13 @@ namespace gme // I'm gonna use a different namespace in order to test a few thin
 	struct SApplication {
 				::gpk::SFramework														Framework							;
 				::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>		Offscreen							= {};
-				::gpk::array_obj<::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>>	PaintScreen							= {};
+				::gpk::array_obj<::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>>	PaintScreen							= {};
 				::gpk::array_obj<::gpk::SControlList>									Menus								= {};
 				int32_t																	SelectedMenu						= -1;
 
 				::gpk::SDesktop															Desktop								= {};
 				::gme::SAppPaletteGrid													PaletteControl;
-				::gpk::STexture<::gpk::SColorBGRA>										PaletteColors;
+				::gpk::SImage<::gpk::SColorBGRA>										PaletteColors;
 				
 
 				::std::mutex															LockGUI;

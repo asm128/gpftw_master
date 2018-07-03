@@ -177,7 +177,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 					::gpk::viewportInitialize(gui, viewportToSetUp);
 					::gpk::controlSetParent(gui, viewportToSetUp.IdControl, desktop.IdControl);
 				}
-				::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>			newPaintScreen						= {};
+				::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>			newPaintScreen						= {};
 				newPaintScreen.create();
 				newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
 				memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));

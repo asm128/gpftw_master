@@ -97,7 +97,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	app.TexturesTest.resize(myTextureCount);
 
 	for(uint32_t iTexture = 0; iTexture < myTextureCount; ++iTexture) {
-		::gpk::STexture<::gpk::SColorBGRA>											& textureLoaded				= app.TexturesTest[iTexture];
+		::gpk::SImage<::gpk::SColorBGRA>											& textureLoaded				= app.TexturesTest[iTexture];
 		::gpk::bmpFileLoad(textureNames[iTexture], textureLoaded);
 	}
 	return 0; 

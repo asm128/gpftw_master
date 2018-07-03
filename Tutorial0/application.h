@@ -99,10 +99,10 @@ struct SDrawTrianglesArgs {
 struct SApplication {
 						::gpk::SFramework																		Framework							;
 
-						::gpk::array_obj<::gpk::STexture<::gpk::SColorBGRA>>									TexturesGND							= {};
-						::gpk::STexture<::gpk::SColorBGRA>														TextureFont							= {};
-						::gpk::STextureMonochrome<uint32_t>														TextureFontMonochrome				= {};
-						::gpk::STexture<::gpk::SColorBGRA>														TextureMinimap						= {};
+						::gpk::array_obj<::gpk::SImage<::gpk::SColorBGRA>>									TexturesGND							= {};
+						::gpk::SImage<::gpk::SColorBGRA>														TextureFont							= {};
+						::gpk::SImageMonochrome<uint32_t>														TextureFontMonochrome				= {};
+						::gpk::SImage<::gpk::SColorBGRA>														TextureMinimap						= {};
 						::gpk::SGUI																				GUI									= {};
 
 						::gpk::SModelPivot	<float>																GridPivot							= {};

@@ -53,7 +53,7 @@ namespace gme
 
 	struct SModel {
 				::gpk::array_obj<::gme::SModelNode>											Nodes;
-				::gpk::STexture<::gme::STileMapping>										TileMapping;
+				::gpk::SImage<::gme::STileMapping>										TileMapping;
 	};
 
 	enum TILE_FACE_FACING 

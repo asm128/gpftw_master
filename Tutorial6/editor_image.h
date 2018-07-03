@@ -11,7 +11,7 @@ namespace gme
 		::gpk::SDesktop											Desktop								= {};	
 		::gpk::SColorBGRA										ColorPaint							= {0xFF, 0xFF, 0xFF, 0xFF};
 
-		::gpk::ptr_obj<::gpk::STexture<::gpk::SColorBGRA>>		PaintScreen							= {};	
+		::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>		PaintScreen							= {};	
 	};
 }
 

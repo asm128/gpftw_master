@@ -22,7 +22,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::SApplication, "Tutorial 0");
 
 static				::gpk::error_t										updateSizeDependentResources				(::SApplication& applicationInstance)											{ 
 	const ::gpk::SCoord2<uint32_t>												newSize										= applicationInstance.Framework.MainDisplay.Size;// / 2; 
-	::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= applicationInstance.Framework.MainDisplayOffscreen->Color;
+	::gpk::SImage<::gpk::SColorBGRA>											& offscreen									= applicationInstance.Framework.MainDisplayOffscreen->Color;
 	const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 	if(newSize != offscreenMetrics) {
 		::gpk::SMatrix4<float>														& finalProjection							= applicationInstance.Scene.Transforms.FinalProjection	;
@@ -219,7 +219,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	if(input.KeyboardCurrent.KeyState[VK_ADD		])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle += frameInfo.Seconds.LastFrame * .05f; }
 	if(input.KeyboardCurrent.KeyState[VK_SUBTRACT	])	{ updateProjection = true; applicationInstance.Scene.Camera.Range.Angle -= frameInfo.Seconds.LastFrame * .05f; }
 	if(updateProjection) {
-		::gpk::STexture<::gpk::SColorBGRA>											& offscreen									= framework.MainDisplayOffscreen->Color;
+		::gpk::SImage<::gpk::SColorBGRA>											& offscreen									= framework.MainDisplayOffscreen->Color;
 		const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
 
 		::gpk::SMatrix4<float>														& finalProjection							= applicationInstance.Scene.Transforms.FinalProjection	;
