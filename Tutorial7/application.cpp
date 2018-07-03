@@ -28,19 +28,6 @@ static 		const ::SDialogElement										dialogAbout	[]							=
 	,	{"Copyright (c) - 2018"					, {{0,   0}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
 	};
 
-static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SDesktop & desktop, const ::gpk::view_array<const ::gme::SMenuItem>& menuItems, int32_t iParentList, int32_t iParentItem)		{ 
-	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
-	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
-		::gme::SMenuItem															item									= menuItems[iOption];
-		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "??"); 
-	}
-	if(-1 == iParentList || -1 == iParentItem)
-		 desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
-	else
-		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "Invalid parent?"); 
-	return idMenu;
-} // File
-
 static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)		{ 
 	// --- Setup desktop  
 	desktop.IdControl														= ::gpk::controlCreate(gui);
@@ -60,13 +47,13 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	::setupDesktop(gui, desktop);
-	::gpk::error_t																idMenuMain								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
-	::gpk::error_t																idMenuFile								= ::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File"));
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Open"));
-		::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Save"));
-	::gpk::error_t idEdit = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit")); idEdit;
-	::gpk::error_t idHelp = ::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Help")); idHelp;
+	::gpk::error_t																idMenuMain								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
+	::gpk::error_t																idMenuFile								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File"));
+		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
+		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Open"));
+		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Save"));
+	::gpk::error_t idEdit = ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit")); idEdit;
+	::gpk::error_t idHelp = ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsHelp	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Help")); idHelp;
 	return 0;
 }
 
@@ -103,24 +90,6 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	return 0; 
 }
 
-			::gpk::error_t												paintViewportSave						(::gme::SApplication & app)							{ 
-	for(uint32_t iImage = 0; iImage < app.EditorsImage.size(); ++iImage) {
-		FILE																		* fp									= 0;
-		::gpk::array_pod<ubyte_t>													data;
-		ce_if(errored(::gpk::pngFileWrite(app.EditorsImage[iImage].PaintScreen->View, data)), "Failed to encode PNG!");			
-		if(data.size()) {
-			char																		buffer [128]							= {};
-			sprintf_s(buffer, "Viewport_%u.png", iImage);
-			fopen_s(&fp, buffer, "wb");
-			if(fp) {
-				fwrite(data.begin(), 1, data.size(), fp);
-				fclose(fp);
-			}
-		}
-	}
-	return 0;
-}
-
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)							{ 
 	::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>							newPaintScreen							= {};
 	int32_t																		indexViewport							= -1;
@@ -137,7 +106,10 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	}
 	newPaintScreen															= app.EditorsImage[indexViewport].PaintScreen;
 	::gpk::SViewport															& viewportToSetUp						= desktop.Items.Viewports[indexViewport];
-	newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>());
+	gui.Controls.Controls[viewportToSetUp.IdControl].Area.Offset			= gui.CursorPos.Cast<int16_t>();
+	gui.Controls.Controls[viewportToSetUp.IdControl].Area.Offset			+= ::gpk::SCoord2<int16_t>{20, 20};
+	gpk_necall(::gme::contextEditorImageInitialize(gui, app.EditorsImage[indexViewport], viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]), "");
+	gpk_necall(newPaintScreen->resize(gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Area.Size.Cast<uint32_t>()), "Out of memory?");
 	memset(newPaintScreen->Texels.begin(), 0, newPaintScreen->Texels.size() * sizeof(::gpk::SColorBGRA));
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
@@ -228,8 +200,6 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		case ::gme::APP_MENU_EVENT_EXIT					: return 1;
 		case ::gme::APP_MENU_EVENT_NEW_PALETTE			: ::paletteCreate		(app);	break;
 		case ::gme::APP_MENU_EVENT_NEW_CONTEXT_IMAGE	: ::paintViewportCreate	(app);	break;
-		case ::gme::APP_MENU_EVENT_SAVE_IMAGE			: ::paintViewportSave	(app);	break;
-			break;
 		}
 
 	for(uint32_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
@@ -237,11 +207,19 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		if(desktop.Items.Viewports.Unused[iViewport] || currentViewport.ControlType != -1)
 			continue;
 		int32_t																			idTarget							= currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
+		{
+			::gme::mutex_guard																lock								(app.LockGUI);
+			::gme::contextEditorImageUpdate(gui, app.EditorsImage[iViewport], input);
+			if(-1 == app.EditorsImage[iViewport].Desktop.IdControl) {
+				::gpk::desktopDeleteViewport(gui, desktop, iViewport);
+				continue;
+			}
+		}
 		//const ::gpk::SCoord2<int32_t>													& currentViewportClientSize			= gui.Controls.Metrics[idTarget].Client.Global.Size;
 		//if(currentViewportClientSize != gui.Controls.Controls[idTarget].Image.metrics().Cast<int32_t>()) {
 		//	app.EditorsImage[iViewport].PaintScreen->resize(currentViewportClientSize.Cast<uint32_t>());
 		//	app.EditorsImage[iViewport].PaintScreen->resize(currentViewportClientSize.Cast<uint32_t>());
-		//	gui.Controls.Controls[idTarget].Image = app.EditorsImage[iViewport].PaintScreen->View;
+		//	gui.Controls.Controls[idTarget].Image										= app.EditorsImage[iViewport].PaintScreen->View;
 		//}
 		const ::gpk::SCoord2<int32_t>													paintOffset							= gui.Controls.Metrics[idTarget].Client.Global.Offset;
 		/*if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), {paintOffset, (paintOffset + gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size)}))*/ {

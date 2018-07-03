@@ -27,10 +27,10 @@ namespace gme
 		};
 
 	static	const SMenuItem								g_MenuOptionsFile	[]		=	
-		{ {"New	"			, EDIT_IMAGE_MENU_EVENT_NEW		}
+		{ {"New "			, EDIT_IMAGE_MENU_EVENT_NEW		}
 		, {"Open"			, EDIT_IMAGE_MENU_EVENT_OPEN	}
 		, {"Save"			, EDIT_IMAGE_MENU_EVENT_SAVE	}
-		, {"Exit"			, EDIT_IMAGE_MENU_EVENT_EXIT	}
+		, {"Close"			, EDIT_IMAGE_MENU_EVENT_EXIT	}
 		};
 }
 
