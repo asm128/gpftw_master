@@ -124,8 +124,30 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
  	::gpk::SImage<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
 	gpk_necall(paletteData.resize(16, 16), "Out of memory?");
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
-	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
-		paletteData.Texels[iColor]												= gui.Palette[iColor + 128];//{rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
+	::gpk::SColorBGRA															colorsBase	[6]							= 
+		{ ::gpk::RED
+		, ::gpk::YELLOW
+		, ::gpk::GREEN
+		, ::gpk::CYAN
+		, ::gpk::BLUE
+		, ::gpk::MAGENTA
+		};
+	static constexpr	const double											scaleColorBase							= (16.0 / 6.0);
+	uint32_t																	indicesColorBase	[6]					= {};
+	for(uint32_t iColor = 0; iColor < paletteData.View.metrics().x; ++iColor) {
+		if((uint32_t)((iColor) / scaleColorBase) >= 6)
+			break;
+		indicesColorBase[(uint32_t)((iColor) / scaleColorBase)]	= iColor;	
+	}
+	for(uint32_t iColor = 0; iColor < paletteData.View.metrics().x; ++iColor) {
+		//paletteData.Texels[iColor]												= gui.Palette[iColor + 128];//{rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
+		uint32_t																	indexColorBase	= (uint32_t)((iColor) / scaleColorBase) % 6;	
+		::gpk::SMinMax<uint32_t>													minMax			= {::gpk::min(indicesColorBase[indexColorBase], indicesColorBase[(indexColorBase + 1) % 6]), ::gpk::max(indicesColorBase[indexColorBase], indicesColorBase[(indexColorBase + 1) % 6])};
+		double f = (iColor % (minMax.Max - minMax.Min)) / double(minMax.Max - minMax.Min);
+		::gpk::SColorBGRA															color0			= colorsBase[indexColorBase];
+		::gpk::SColorBGRA															color1			= colorsBase[(indexColorBase + 1) % 6];
+		paletteData.Texels[iColor * 16]											= ::gpk::interpolate_linear(color0, color1, f);//color0;//{rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
+	}
 
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
