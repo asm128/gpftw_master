@@ -4,6 +4,14 @@
 
 static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)		{ 
 	// --- Setup desktop  
+	for(uint32_t iChildList = 0; iChildList < desktop.Children.size(); ++iChildList)
+		desktop.Children[iChildList].clear();
+	for(uint32_t iChildList = 0; iChildList < desktop.Items.ControlLists.size(); ++iChildList) 
+		desktop.Items.ControlLists.Unused[iChildList]							= true;
+	for(uint32_t iChildList = 0; iChildList < desktop.Items.Viewports.size(); ++iChildList) 
+		desktop.Items.Viewports.Unused[iChildList]								= true;
+	for(uint32_t iChildList = 0; iChildList < desktop.Items.PaletteGrids.size(); ++iChildList) 
+		desktop.Items.PaletteGrids.Unused[iChildList]							= true;
 	gpk_necall(desktop.IdControl = ::gpk::controlCreate(gui), "Why would this ever happen? Out of memory?");
 	gui.Controls.States		[desktop.IdControl].Design						= true;
 	gui.Controls.Constraints[desktop.IdControl].AttachSizeToControl			= {desktop.IdControl, desktop.IdControl};

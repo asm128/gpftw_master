@@ -123,10 +123,10 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			::gpk::error_t												paletteCreate							(::gme::SApplication & app)							{ 
  	::gpk::SImage<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
 	gpk_necall(paletteData.resize(16, 16), "Out of memory?");
-	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
-		paletteData.Texels[iColor]												= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
-
 	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
+		paletteData.Texels[iColor]												= gui.Palette[iColor + 128];//{rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
+
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
@@ -141,9 +141,9 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		gui.Controls.Controls[viewportToSetUp.IdControl].Area.Size				= {256 + vpNCSpacing.x, 256 + vpNCSpacing.y + gui.Controls.Controls[viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TITLE]].Area.Size.y};
 		paletteGrid.IdControl													= viewportToSetUp.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
 		gui.Controls.Controls[paletteGrid.IdControl].Area.Size					= {256, 256};
-		::gpk::guiUpdateMetrics		(gui, gui.LastSize, false);
-		::gpk::paletteGridColorsSet	(gui, paletteGrid, paletteData.View);
-		::gpk::controlDelete		(gui, oldPaletteControl);
+		gpk_necall(::gpk::guiUpdateMetrics		(gui, gui.LastSize, false)			, "Unknown.");
+		gpk_necall(::gpk::paletteGridColorsSet	(gui, paletteGrid, paletteData.View), "Unknown.");
+		gpk_necall(::gpk::controlDelete			(gui, oldPaletteControl)			, "Unknown.");
 	}
 	return 0;
 }
@@ -162,12 +162,12 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	int32_t																		hoveredControl							= -1;
 	::gpk::SInput																& input									= *app.Framework.Input;
 	{
-		//::gme::mutex_guard															lock									(app.LockGUI);
+		::gme::mutex_guard															lock									(app.LockGUI);
 		hoveredControl															= ::gpk::guiProcessInput(gui, input);
 	}
 
 	if(input.MouseCurrent.Deltas.z) {
-		//::gme::mutex_guard															lock									(app.LockGUI);
+		::gme::mutex_guard															lock									(app.LockGUI);
 		gui.Zoom.ZoomLevel														+= input.MouseCurrent.Deltas.z * (1.0f / (120 * 4));
 		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size, true);
 	}
@@ -183,7 +183,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		::gpk::SPaletteGrid															& paletteControl					= desktop.Items.PaletteGrids[iPalette];
 		if(paletteControl.IdControl != -1) 
 			for(uint32_t iColorControl = 0, colorControlStop = paletteControl.IdControls.size(); iColorControl < colorControlStop; ++iColorControl) {
-				if(gui.Controls.States[(uint32_t)paletteControl.IdControls[iColorControl]].Execute) {
+				if(gui.Controls.States[(uint32_t)paletteControl.IdControls[iColorControl]].Execute) {			// Set the color clicked on the palette.
 					for(uint32_t iContextImage = 0; iContextImage < app.EditorsImage.size(); ++iContextImage) 
 						app.EditorsImage[iContextImage].ColorPaint								= paletteControl.Colors[(iColorControl) / paletteControl.Colors.metrics().x][(iColorControl) % paletteControl.Colors.metrics().x];
 					break;
@@ -191,10 +191,10 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			}
 	}
 
-	int64_t																			desktopEvent						= 0;
+	int64_t																		desktopEvent						= 0;
 	{
-		::gme::mutex_guard																lock								(app.LockGUI);
-		desktopEvent																= ::gpk::desktopUpdate(gui, desktop, input);
+		::gme::mutex_guard															lock								(app.LockGUI);
+		desktopEvent															= ::gpk::desktopUpdate(gui, desktop, input);
 	}
 	if(desktopEvent)
 		switch(desktopEvent) {
@@ -224,23 +224,21 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		//	gui.Controls.Controls[idTarget].Image										= app.EditorsImage[iViewport].PaintScreen->View;
 		//}
 		const ::gpk::SCoord2<int32_t>													paintOffset							= gui.Controls.Metrics[idTarget].Client.Global.Offset;
-		/*if(::gpk::in_range(gui.CursorPos.Cast<int32_t>(), {paintOffset, (paintOffset + gui.Controls.Metrics[currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET]].Client.Global.Size)}))*/ {
+		if(gui.Controls.States[idTarget].Pressed) {
 			const ::gpk::SCoord2<int32_t>													mouseDeltas							= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
-			if(gui.Controls.States[idTarget].Pressed) {
-				::gme::SContextEditorImage														contextImage						= app.EditorsImage[iViewport];
-				if(mouseDeltas.LengthSquared()) {
-					const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
-					::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
-					//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
-					::gpk::drawLine(contextImage.PaintScreen->View.metrics(), lineToDraw, pointsToDraw);
-					for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
-						::gpk::drawPixelBrightness(contextImage.PaintScreen->View, pointsToDraw[iPoint], contextImage.ColorPaint, 0.1f, 5.0);
-				}
-				else if(input.ButtonDown(0)) {
-					::gpk::SCoord2<int32_t>															mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
-					mousePos																	-= paintOffset;
-					::gpk::drawPixelBrightness(contextImage.PaintScreen->View, mousePos, contextImage.ColorPaint, 0.1f, 5.0);
-				}
+			::gme::SContextEditorImage														contextImage						= app.EditorsImage[iViewport];
+			if(mouseDeltas.LengthSquared()) {
+				const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
+				::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
+				//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
+				::gpk::drawLine(contextImage.PaintScreen->View.metrics(), lineToDraw, pointsToDraw);
+				for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
+					::gpk::drawPixelBrightness(contextImage.PaintScreen->View, pointsToDraw[iPoint], contextImage.ColorPaint, 0.1f, 5.0);
+			}
+			else if(input.ButtonDown(0)) {
+				::gpk::SCoord2<int32_t>															mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
+				mousePos																	-= paintOffset;
+				::gpk::drawPixelBrightness(contextImage.PaintScreen->View, mousePos, contextImage.ColorPaint, 0.1f, 5.0);
 			}
 		}
 	}
