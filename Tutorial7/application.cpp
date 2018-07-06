@@ -10,24 +10,6 @@
 
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
-enum DIALOG_ELEMENT_TYPE	
-	{ DIALOG_ELEMENT_TYPE_Text
-	, DIALOG_ELEMENT_TYPE_Image
-	, DIALOG_ELEMENT_TYPE_Button
-	};
-
-struct		SDialogElement	{
-				::gpk::view_const_string									Text;
-				::gpk::SRectangle2D<int32_t>								Area;
-				::gpk::ALIGN												Align;
-				DIALOG_ELEMENT_TYPE											Type;
-};
-
-static 		const ::SDialogElement										dialogAbout	[]							= 
-	{	{"Pablo Ariel Zorrilla Cepeda - asm128"	, {{0, -20}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
-	,	{"Copyright (c) - 2018"					, {{0,   0}, {}}, ::gpk::ALIGN_CENTER, DIALOG_ELEMENT_TYPE_Text}
-	};
-
 static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)		{ 
 	// --- Setup desktop  
 	desktop.IdControl														= ::gpk::controlCreate(gui);
@@ -49,7 +31,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::setupDesktop(gui, desktop);
 	::gpk::error_t																idMenuMain								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsMain, -1, -1);
 	::gpk::error_t																idMenuFile								= ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsFile, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "File"));
-		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New"));
+		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsNew	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "New" ));
 		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsOpen	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Open"));
 		::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsSave	, idMenuFile, ::gme::getMenuItemIndex(::gme::g_MenuOptionsFile, "Save"));
 	::gpk::error_t idEdit = ::gme::setupMenu(gui, desktop, ::gme::g_MenuOptionsEdit	, idMenuMain, ::gme::getMenuItemIndex(::gme::g_MenuOptionsMain, "Edit")); idEdit;
@@ -72,9 +54,6 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::ptr_obj<::gpk::SRenderTarget<::gpk::SColorBGRA, uint32_t>>			target;
 	target.create();
 	target->resize(app.Framework.MainDisplay.Size, ::gpk::DARKBLUE / 2.0, 0xFFFFFFFF);
-	//for(uint32_t y = 0; y < target->Color.View.metrics().y; ++y) 
-	//for(uint32_t x = 0; x < target->Color.View.metrics().x; ++x) 
-	//	target->Color.Texels.begin()[y * target->Color.View.metrics().x + x]	= rand();
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
@@ -195,7 +174,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	}
 
 	::gpk::array_pod<uint32_t>													controlsToProcess					= {};
-	::gpk::guiGetProcessableControls(gui, controlsToProcess);
+	error_if(errored(::gpk::guiGetProcessableControls(gui, controlsToProcess)), "Floers.");
 
 	::gpk::SDesktop																& desktop							= app.Desktop;
 	for(uint32_t iPalette = 0; iPalette < desktop.Items.PaletteGrids.size(); ++iPalette) {
@@ -227,12 +206,12 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		}
 
 	for(uint32_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
-		::gpk::SViewport																& currentViewport					= desktop.Items.Viewports[iViewport];
+		::gpk::SViewport															& currentViewport					= desktop.Items.Viewports[iViewport];
 		if(desktop.Items.Viewports.Unused[iViewport] || currentViewport.ControlType != -1)
 			continue;
-		int32_t																			idTarget							= currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
+		int32_t																		idTarget							= currentViewport.IdControls[::gpk::VIEWPORT_CONTROL_TARGET];
 		{
-			::gme::mutex_guard																lock								(app.LockGUI);
+			::gme::mutex_guard															lock								(app.LockGUI);
 			::gme::contextEditorImageUpdate(gui, app.EditorsImage[iViewport], input);
 			if(-1 == app.EditorsImage[iViewport].Desktop.IdControl) {
 				::gpk::desktopDeleteViewport(gui, desktop, iViewport);
@@ -245,29 +224,29 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 		//	app.EditorsImage[iViewport].PaintScreen->resize(currentViewportClientSize.Cast<uint32_t>());
 		//	gui.Controls.Controls[idTarget].Image										= app.EditorsImage[iViewport].PaintScreen->View;
 		//}
-		const ::gpk::SCoord2<int32_t>													paintOffset							= gui.Controls.Metrics[idTarget].Client.Global.Offset;
+		const ::gpk::SCoord2<int32_t>												paintOffset							= gui.Controls.Metrics[idTarget].Client.Global.Offset;
 		if(gui.Controls.States[idTarget].Pressed) {
-			const ::gpk::SCoord2<int32_t>													mouseDeltas							= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
-			::gme::SContextEditorImage														contextImage						= app.EditorsImage[iViewport];
+			const ::gpk::SCoord2<int32_t>												mouseDeltas							= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
+			::gme::SContextEditorImage													contextImage						= app.EditorsImage[iViewport];
 			if(mouseDeltas.LengthSquared()) {
-				const ::gpk::SLine2D<int32_t>													lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
-				::gpk::array_pod<::gpk::SCoord2<int32_t>>										pointsToDraw;
+				const ::gpk::SLine2D<int32_t>												lineToDraw							= {gui.CursorPos.Cast<int32_t>() - paintOffset - mouseDeltas, gui.CursorPos.Cast<int32_t>() - paintOffset};
+				::gpk::array_pod<::gpk::SCoord2<int32_t>>									pointsToDraw;
 				//::gpk::drawLine(app.PaintScreen->Color.View, ::gpk::SColorBGRA{::gpk::YELLOW}, lineToDraw);
 				::gpk::drawLine(contextImage.PaintScreen->View.metrics(), lineToDraw, pointsToDraw);
 				for(uint32_t iPoint = 0; iPoint < pointsToDraw.size(); ++iPoint) 
 					::gpk::drawPixelBrightness(contextImage.PaintScreen->View, pointsToDraw[iPoint], contextImage.ColorPaint, 0.1f, 5.0);
 			}
 			else if(input.ButtonDown(0)) {
-				::gpk::SCoord2<int32_t>															mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
-				mousePos																	-= paintOffset;
+				::gpk::SCoord2<int32_t>														mousePos							= {input.MouseCurrent.Position.x, input.MouseCurrent.Position.y};
+				mousePos																-= paintOffset;
 				::gpk::drawPixelBrightness(contextImage.PaintScreen->View, mousePos, contextImage.ColorPaint, 0.1f, 5.0);
 			}
 		}
 	}
-	static char																		frameRatebuffer[128]				= {};
+	static char																	frameRatebuffer	[128]				= {};
 	sprintf_s(frameRatebuffer, "Frames per second (update) : %f", framework.FrameInfo.Seconds.LastFrame);
-	gui.Controls.Text[0].Align													= ::gpk::ALIGN_BOTTOM_LEFT;
-	gui.Controls.Text[0].Text													= frameRatebuffer;
+	gui.Controls.Text[0].Align												= ::gpk::ALIGN_BOTTOM_LEFT;
+	gui.Controls.Text[0].Text												= frameRatebuffer;
  	//timer.Frame();
 	//info_printf("Update time: %f.", (float)timer.LastTimeSeconds);
 	return 0; 

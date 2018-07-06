@@ -46,6 +46,8 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			fwrite(data.begin(), 1, data.size(), fp);
 			fclose(fp);
 		}
+		else
+			error_printf("Failed to open file: %s.", filename.begin());
 	}
 	return 0;
 }
