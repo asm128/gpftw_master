@@ -82,15 +82,15 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	gpk_necall(setupGUI(app), "Unknown error.");
 
 	::gpk::label																textureNames []				= 
-		{ "pow_0.bmp"
-		, "pow_1.bmp" 
-		, "pow_2.bmp" 
-		, "pow_3.bmp" 
-		, "crosshair_0.bmp"														
-		, "crosshair_1.bmp"														
-		, "crosshair_2.bmp"														
-		, "crosshair_3.bmp"														
-		, "crosshair_4.bmp"														
+		{ "..\\gpk_data\\images\\pow_0.bmp"
+		, "..\\gpk_data\\images\\pow_1.bmp" 
+		, "..\\gpk_data\\images\\pow_2.bmp" 
+		, "..\\gpk_data\\images\\pow_3.bmp" 
+		, "..\\gpk_data\\images\\crosshair_0.bmp"														
+		, "..\\gpk_data\\images\\crosshair_1.bmp"														
+		, "..\\gpk_data\\images\\crosshair_2.bmp"														
+		, "..\\gpk_data\\images\\crosshair_3.bmp"														
+		, "..\\gpk_data\\images\\crosshair_4.bmp"														
 		};
 
 	uint32_t																	myTextureCount				= ::gpk::size(textureNames);
