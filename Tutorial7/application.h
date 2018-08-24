@@ -1,4 +1,3 @@
-#include "gpk_gui_desktop.h"
 #include "gpk_framework.h"
 #include "gpk_scene.h"
 #include "gpk_ro_rsw.h"
