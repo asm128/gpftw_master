@@ -77,7 +77,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			::gpk::error_t												setup						(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
 	::gpk::SDisplay																& mainWindow				= framework.MainDisplay;
-	ree_if(0 == framework.Input.create(), "Out of memory?");
+	ree_if(0 == framework.Input.create(), "%s", "Out of memory?");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(setupGUI(app), "Unknown error.");
 
@@ -136,7 +136,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 		app.Framework.MainDisplayOffscreen										= app.Offscreen;
 	}
 	::gpk::SFramework															& framework					= app.Framework;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "Exit requested by framework update.");
+	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
 	::gpk::SGUI																	& gui						= framework.GUI;
 	{

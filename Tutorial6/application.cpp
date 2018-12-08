@@ -32,12 +32,12 @@ static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SD
 	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
 	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
 		::gme::SMenuItem															item									= menuItems[iOption];
-		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "??"); 
+		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "%s", "??"); 
 	}
 	if(-1 == iParentList || -1 == iParentItem)
 		 desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
 	else
-		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "Invalid parent?"); 
+		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "%s", "Invalid parent?"); 
 	return idMenu;
 } // File
 
@@ -74,9 +74,9 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			::gpk::error_t												setup									(::gme::SApplication & app)							{ 
 	::gpk::SFramework															& framework								= app.Framework;
 	::gpk::SDisplay																& mainWindow							= framework.MainDisplay;
-	ree_if(0 == framework.Input.create(), "Out of memory?");
-	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
-	gpk_necall(::setupGUI(app), "Unknown error.");
+	ree_if(0 == framework.Input.create(), "%s", "Out of memory?");
+	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "%s", "Failed to create main window why?????!?!?!?!?");
+	gpk_necall(::setupGUI(app), "%s", "Unknown error.");
 	return 0; 
 }
 
@@ -106,7 +106,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	for(uint32_t iImage = 0; iImage < app.EditorsImage.size(); ++iImage) {
 		FILE																		* fp									= 0;
 		::gpk::array_pod<ubyte_t>													data;
-		ce_if(errored(::gpk::pngFileWrite(app.EditorsImage[iImage].PaintScreen->View, data)), "Failed to encode PNG!");			
+		ce_if(errored(::gpk::pngFileWrite(app.EditorsImage[iImage].PaintScreen->View, data)), "%s", "Failed to encode PNG!");			
 		if(data.size()) {
 			char																		buffer [128]							= {};
 			sprintf_s(buffer, "Viewport_%u.png", iImage);
@@ -147,7 +147,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 			::gpk::error_t												paletteCreate							(::gme::SApplication & app)							{ 
  	::gpk::SImage<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
-	gpk_necall(paletteData.resize(16, 16), "Out of memory?");
+	gpk_necall(paletteData.resize(16, 16), "%s", "Out of memory?");
 	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
 		paletteData.Texels[iColor]												= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
 
@@ -175,13 +175,13 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 			::gpk::error_t												update									(::gme::SApplication & app, bool exitSignal)		{ 
 	::gpk::STimer																timer;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "Exit requested by runtime.");
+	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "%s", "Exit requested by runtime.");
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
 		app.Framework.MainDisplayOffscreen										= app.Offscreen;
 	}
 	::gpk::SFramework															& framework								= app.Framework;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "Exit requested by framework update.");
+	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
 	::gpk::SGUI																	& gui									= framework.GUI;
 	int32_t																		hoveredControl							= -1;

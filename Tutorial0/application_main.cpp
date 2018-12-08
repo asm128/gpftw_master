@@ -194,7 +194,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//::gpk::STimer																benchTimer;
 	::gpk::SFramework															& framework									= applicationInstance.Framework;
 	::gpk::SFrameInfo															& frameInfo									= framework.FrameInfo;
-	rvi_if(1, systemRequestedExit, "Exiting because the runtime asked for close. We could also ignore this value and just continue execution if we don't want to exit.");
+	rvi_if(1, systemRequestedExit, "%s", "Exiting because the runtime asked for close. We could also ignore this value and just continue execution if we don't want to exit.");
 	{
 		mutex_guard																	lock										(applicationInstance.RenderLock);
 		if(applicationInstance.RenderTargets.size()) {
@@ -209,9 +209,9 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 		//	warning_printf("No frames rendered.");
 	}
 	::gpk::error_t																frameworkResult								= ::gpk::updateFramework(applicationInstance.Framework);
-	ree_if(errored(frameworkResult), "Unknown error.");
-	rvi_if(1, frameworkResult == 1, "Framework requested close. Terminating execution.");
-	ree_if(errored(::updateSizeDependentResources(applicationInstance)), "Cannot update offscreen and this could cause an invalid memory access later on.");
+	ree_if(errored(frameworkResult), "%s", "Unknown error.");
+	rvi_if(1, frameworkResult == 1, "%s", "Framework requested close. Terminating execution.");
+	ree_if(errored(::updateSizeDependentResources(applicationInstance)), "%s", "Cannot update offscreen and this could cause an invalid memory access later on.");
 
 	//----------------------------------------------
 	bool																		updateProjection							= false;
@@ -329,7 +329,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//info_printf("Draw frame 0 step 1: %f.", benchTimer0.LastTimeSeconds);
 
 
-	error_if(errored(pixelsDrawn1), "??");
+	error_if(errored(pixelsDrawn1), "%s", "??");
 	for(uint32_t y = 0, yMax = newRenderTargetGND.Color.View.metrics().y; y < yMax; ++y) 
 		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), newRenderTargetGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
 	const ::gpk::view_grid<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;

@@ -68,9 +68,9 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	app.Menus.resize(::gme::APP_MENU_COUNT);
 
 	// --- Setup "Main" menu
-	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_MAIN], -1, ::gpk::ALIGN_CENTER_TOP, ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL, ::gme::g_MenuOptionsMain), "No known reason for this to fail other than memory corruption.");
-	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_FILE], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_File], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsFile), "No known reason for this to fail other than memory corruption.");
-	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_EDIT], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_Edit], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsEdit), "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_MAIN], -1, ::gpk::ALIGN_CENTER_TOP, ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL, ::gme::g_MenuOptionsMain), "%s", "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_FILE], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_File], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsFile), "%s", "No known reason for this to fail other than memory corruption.");
+	gpk_necall(setupMenu(gui, app.Menus[::gme::APP_MENU_EDIT], app.Menus[::gme::APP_MENU_MAIN].IdControls[::gme::MENU_OPTION_MAIN_Edit], ::gpk::ALIGN_TOP_LEFT, ::gpk::CONTROL_LIST_DIRECTION_VERTICAL, ::gme::g_MenuOptionsEdit), "%s", "No known reason for this to fail other than memory corruption.");
 	return 0;
 }
 
@@ -78,9 +78,9 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			::gpk::error_t												setup									(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework								= app.Framework;
 	::gpk::SDisplay																& mainWindow							= framework.MainDisplay;
-	ree_if(0 == framework.Input.create(), "Out of memory?");
+	ree_if(0 == framework.Input.create(), "%s", "Out of memory?");
 	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
-	gpk_necall(setupGUI(app), "Unknown error.");
+	gpk_necall(setupGUI(app), "%s", "Unknown error.");
 	return 0; 
 }
 
@@ -106,13 +106,13 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												update									(::gme::SApplication & app, bool exitSignal)	{ 
 	::gpk::STimer																timer;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "Exit requested by runtime.");
+	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "%s", "Exit requested by runtime.");
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
 		app.Framework.MainDisplayOffscreen										= app.Offscreen;
 	}
 	::gpk::SFramework															& framework								= app.Framework;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "Exit requested by framework update.");
+	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
 	::gpk::SGUI																	& gui									= framework.GUI;
 	{
