@@ -9,12 +9,12 @@
 GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	
 			::gpk::error_t												setupMenuMain							(::gme::SApplication & app)						{ 
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::controlListInitialize(gui, app.Menu.ControlListMain);
 	int32_t																		idOptionList0							= app.Menu.ControlListMain.IdControl;
 	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, 22}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.States		[idOptionList0].Design							= true;
+	gui.Controls.Modes		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
 	gui.Controls.Constraints[idOptionList0].AttachSizeToControl.x			= idOptionList0; //app.OptionList.IdControls[firstOption];
 
@@ -29,14 +29,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 }
 
 			::gpk::error_t												setupMenuFile							(::gme::SApplication & app, int32_t parentControl)						{ 
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::controlListInitialize(gui, app.Menu.ControlListFile);
 	app.Menu.ControlListFile.Orientation									= ::gpk::CONTROL_LIST_DIRECTION_VERTICAL;
 	int32_t																		idOptionList							= app.Menu.ControlListFile.IdControl;
 	const ::gpk::SCoord2<int16_t>												& parentOffset							= gui.Controls.Controls[parentControl].Area.Offset;
 	gui.Controls.Controls	[idOptionList].Area								= {parentOffset, {100, }};
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_TOP_LEFT;
-	gui.Controls.States		[idOptionList].Design							= true;
+	gui.Controls.Modes		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= gui.Controls.Text[parentControl].Text;
 	gui.Controls.Constraints[idOptionList].DockToControl.Bottom				= parentControl;
 	gui.Controls.States		[idOptionList].Hidden							= true;
@@ -52,7 +52,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												setupGUI								(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework								= app.Framework;
-	::gpk::SGUI																	& gui									= framework.GUI;
+	::gpk::SGUI																	& gui									=* framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= ::gpk::ASCII_COLOR_DARKCYAN * 16 + 7;
 	gpk_necall(::setupMenuMain(app), "No known reason for this to fail other than memory corruption.");
@@ -78,12 +78,12 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	target->DepthStencil.resize(target->Color.View.metrics());
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
-		::gpk::grid_copy(target->Color.View, app.PaintScreen->View, ::gpk::SCoord2<int32_t>{0, app.Framework.GUI.Controls.Metrics[app.Menu.ControlListMain.IdControl].Total.Global.Size.y});
+		::gpk::grid_copy(target->Color.View, app.PaintScreen->View, ::gpk::SCoord2<int32_t>{0, app.Framework.GUI->Controls.Metrics[app.Menu.ControlListMain.IdControl].Total.Global.Size.y});
 	}
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
-		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
+		::gpk::guiDraw(*app.Framework.GUI, target->Color.View);
 	}
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
@@ -104,7 +104,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gpk::SFramework															& framework								= app.Framework;
 	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
-	::gpk::SGUI																	& gui									= framework.GUI;
+	::gpk::SGUI																	& gui									= *framework.GUI;
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
 		::gpk::guiProcessInput(gui, *app.Framework.Input);

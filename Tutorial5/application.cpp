@@ -30,7 +30,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	control.Margin = control.Border											= {};
 	controlConstraints.AttachSizeToControl.x								= (parentControl == -1) ? idOptionList : -1; 
 	controlConstraints.DockToControl.Bottom									= parentControl;
-	controlState.Design														= true;
+	gui.Controls.Modes[idOptionList].Design														= true;
 	if(parentControl != -1) {
 		control.Area.Offset.x													= (parentControl == -1) ? -gui.Controls.Controls[parentControl].Area.Size.x : 0; 
 		controlConstraints.DockToControl.Left									= parentControl;
@@ -59,7 +59,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												setupGUI								(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework								= app.Framework;
-	::gpk::SGUI																	& gui									= framework.GUI;
+	::gpk::SGUI																	& gui									=* framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= 179; //::gpk::ASCII_COLOR_DARKGREEN * 16 + 5;
 
@@ -97,7 +97,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
-		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
+		::gpk::guiDraw(*app.Framework.GUI, target->Color.View);
 	}
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
@@ -112,7 +112,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)						{ 
 	::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>							newPaintScreen							= {};
 	int32_t																		indexViewport							= -1;
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
@@ -140,7 +140,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	for(uint32_t iColor = 0; iColor < paletteData.Texels.size(); ++iColor)
 		paletteData.Texels[iColor]													= {rand() & 0xFFU, rand() & 0xFFU, rand() & 0xFFU, 0xFFU};//gui.Palette[iColor];
 
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
@@ -172,7 +172,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	::gpk::SFramework															& framework								= app.Framework;
 	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
-	::gpk::SGUI																	& gui									= framework.GUI;
+	::gpk::SGUI																	& gui									= *framework.GUI;
 	int32_t																		hoveredControl							= -1;
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);

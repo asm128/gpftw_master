@@ -13,7 +13,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::SDesktop & desktop)		{ 
 	// --- Setup desktop  
 	desktop.IdControl														= ::gpk::controlCreate(gui);
-	gui.Controls.States		[desktop.IdControl].Design						= true;
+	gui.Controls.Modes		[desktop.IdControl].Design						= true;
 	gui.Controls.Constraints[desktop.IdControl].AttachSizeToControl			= {desktop.IdControl, desktop.IdControl};
 	gui.Controls.Controls	[desktop.IdControl].ColorTheme					= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
 	gui.Controls.Controls	[desktop.IdControl].Border						= 
@@ -23,7 +23,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 			::gpk::error_t												setupGUI								(::gme::SApplication & app)							{ 
 	::gpk::SFramework															& framework								= app.Framework;
-	::gpk::SGUI																	& gui									= framework.GUI;
+	::gpk::SGUI																	& gui									= *framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= 179; //::gpk::ASCII_COLOR_DARKGREEN * 16 + 5;
 
@@ -57,7 +57,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	//::gpk::clearTarget(*target);
 	{
 		::gme::mutex_guard															lock									(app.LockGUI);
-		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
+		::gpk::guiDraw(*app.Framework.GUI, target->Color.View);
 	}
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
@@ -71,7 +71,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			::gpk::error_t												paintViewportCreate						(::gme::SApplication & app)							{ 
 	::gpk::ptr_obj<::gpk::SImage<::gpk::SColorBGRA>>							newPaintScreen							= {};
 	int32_t																		indexViewport							= -1;
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::SDesktop																& desktop								= app.Desktop;
 	{
 		::gme::mutex_guard															lock								(app.LockGUI);
@@ -102,7 +102,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 			::gpk::error_t												paletteCreate							(::gme::SApplication & app)							{ 
  	::gpk::SImage<::gpk::SColorBGRA>											& paletteData							= *(app.PaletteColors[app.PaletteColors.push_back({})]).create();
 	gpk_necall(paletteData.resize(16, 16), "Out of memory?");
-	::gpk::SGUI																	& gui									= app.Framework.GUI;
+	::gpk::SGUI																	& gui									= *app.Framework.GUI;
 	::gpk::SColorBGRA															colorsBase	[6]							= 
 		{ ::gpk::RED
 		, ::gpk::YELLOW
@@ -159,20 +159,9 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::SFramework															& framework								= app.Framework;
 	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
-	::gpk::SGUI																	& gui									= framework.GUI;
-	int32_t																		hoveredControl							= -1;
+	::gpk::SGUI																	& gui									=* framework.GUI;
 	::gpk::SInput																& input									= *app.Framework.Input;
-	{
-		::gme::mutex_guard															lock									(app.LockGUI);
-		hoveredControl															= ::gpk::guiProcessInput(gui, input);
-	}
-
-	if(input.MouseCurrent.Deltas.z) {
-		::gme::mutex_guard															lock									(app.LockGUI);
-		gui.Zoom.ZoomLevel														+= input.MouseCurrent.Deltas.z * (1.0f / (120 * 4));
-		::gpk::guiUpdateMetrics(gui, framework.MainDisplay.Size, true);
-	}
-
+	
 	::gpk::array_pod<uint32_t>													controlsToProcess					= {};
 	error_if(errored(::gpk::guiGetProcessableControls(gui, controlsToProcess)), "Floers.");
 

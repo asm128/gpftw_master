@@ -13,7 +13,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	for(uint32_t iChildList = 0; iChildList < desktop.Items.PaletteGrids.size(); ++iChildList) 
 		desktop.Items.PaletteGrids.Unused[iChildList]							= true;
 	gpk_necall(desktop.IdControl = ::gpk::controlCreate(gui), "Why would this ever happen? Out of memory?");
-	gui.Controls.States		[desktop.IdControl].Design						= true;
+	gui.Controls.Modes		[desktop.IdControl].Design						= true;
 	gui.Controls.Constraints[desktop.IdControl].AttachSizeToControl			= {desktop.IdControl, desktop.IdControl};
 	gui.Controls.Controls	[desktop.IdControl].ColorTheme					= ::gpk::ASCII_COLOR_DARKGREY * 16 + 13;
 	gui.Controls.Controls	[desktop.IdControl].Border						= 

@@ -35,14 +35,14 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 			::gpk::error_t												setupGUI					(::gme::SApplication & app)						{ 
 	::gpk::SFramework															& framework					= app.Framework;
-	::gpk::SGUI																	& gui						= framework.GUI;
+	::gpk::SGUI																	& gui						=* framework.GUI;
 	gui.ColorModeDefault													= ::gpk::GUI_COLOR_MODE_3D;
 	gui.ThemeDefault														= ::gpk::ASCII_COLOR_DARKCYAN * 16 + 7;
 	::optionListInitialize(gui, app.OptionListMain);
 	int32_t																		idOptionList0				= app.OptionListMain.IdControl;
 	gui.Controls.Controls	[idOptionList0].Area							= {{}, {0, (int32_t)gui.FontCharSize.y + 4}};
 	gui.Controls.Controls	[idOptionList0].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.States		[idOptionList0].Design							= true;
+	gui.Controls.Modes		[idOptionList0].Design							= true;
 	gui.Controls.Text		[idOptionList0].Text							= "Menu";
 	gui.Controls.Constraints[idOptionList0].AttachSizeToControl	.x			= idOptionList0; 
 
@@ -58,7 +58,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	app.OptionListFile.Orientation											= ::gme::MENU_ORIENTATION_VERTICAL;
 	int32_t																		idOptionList				= app.OptionListFile.IdControl;
 	gui.Controls.Controls	[idOptionList].Align							= ::gpk::ALIGN_CENTER_TOP;
-	gui.Controls.States		[idOptionList].Design							= true;
+	gui.Controls.Modes		[idOptionList].Design							= true;
 	gui.Controls.Text		[idOptionList].Text								= "File";
 	gui.Controls.Constraints[idOptionList].AttachSizeToControl.x			= idOptionList;
 	gui.Controls.Constraints[idOptionList].DockToControl.Bottom				= app.OptionListMain.IdControl;
@@ -117,7 +117,7 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
-		::gpk::guiDraw(app.Framework.GUI, target->Color.View);
+		::gpk::guiDraw(*app.Framework.GUI, target->Color.View);
 	}
 	{
 		::gme::mutex_guard															lock						(app.LockRender);
@@ -137,8 +137,8 @@ GPK_DEFINE_APPLICATION_ENTRY_POINT(::gme::SApplication, "Module Explorer");
 	}
 	::gpk::SFramework															& framework					= app.Framework;
 	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
-
-	::gpk::SGUI																	& gui						= framework.GUI;
+	
+	::gpk::SGUI																	& gui						=* framework.GUI;
 	{
 		::gme::mutex_guard															lock						(app.LockGUI);
 		::gpk::guiProcessInput(gui, *app.Framework.Input);
