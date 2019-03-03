@@ -232,8 +232,8 @@ static				::gpk::error_t										drawTriangles
 	const ::gpk::SMatrix4<float>												& projection								= applicationInstance.Scene.Transforms.FinalProjection	;
 	const ::gpk::SMatrix4<float>												& viewMatrix								= applicationInstance.Scene.Transforms.View				;
 
-	const double																& fFar										= applicationInstance.Scene.Camera.Range.Far	;
-	const double																& fNear										= applicationInstance.Scene.Camera.Range.Near	;
+	const double																& fFar										= applicationInstance.Scene.Camera.NearFar.Far	;
+	const double																& fNear										= applicationInstance.Scene.Camera.NearFar.Near	;
 	const ::gpk::SCoord2<int32_t>												offscreenMetricsI							= offscreenMetrics.Cast<int32_t>();
 	const ::gpk::SCoord3<float>													screenCenter								= {offscreenMetricsI.x / 2.0f, offscreenMetricsI.y / 2.0f, };
 	const ::gpk::SColorFloat													ambient										= 

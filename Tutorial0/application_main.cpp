@@ -30,8 +30,8 @@ static				::gpk::error_t										updateSizeDependentResources				(::SApplicatio
 		::gpk::SMatrix4<float>														& viewport									= applicationInstance.Scene.Transforms.Viewport			;
 		::gpk::SMatrix4<float>														& viewportInverse							= applicationInstance.Scene.Transforms.ViewportInverse	;
 		::gpk::SMatrix4<float>														& viewportInverseCentered					= applicationInstance.Scene.Transforms.ViewportInverse	;
-		fieldOfView.FieldOfView(applicationInstance.Scene.CameraAngle * ::gpk::math_pi, newSize.x / (double)newSize.y, applicationInstance.Scene.Camera.Range.Near, applicationInstance.Scene.Camera.Range.Far);
-		viewport.Viewport(newSize, applicationInstance.Scene.Camera.Range.Far, applicationInstance.Scene.Camera.Range.Near);
+		fieldOfView.FieldOfView(applicationInstance.Scene.Camera.Angle * ::gpk::math_pi, newSize.x / (double)newSize.y, applicationInstance.Scene.Camera.NearFar.Near, applicationInstance.Scene.Camera.NearFar.Far);
+		viewport.Viewport(newSize, applicationInstance.Scene.Camera.NearFar.Far, applicationInstance.Scene.Camera.NearFar.Near);
 		viewportInverse															= viewport.GetInverse();
 		const ::gpk::SCoord2<int32_t>												screenCenter								= {(int32_t)newSize.x / 2, (int32_t)newSize.y / 2};
 		viewportInverseCentered													= viewportInverse;
@@ -185,8 +185,8 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 
 	gpk_necall(::updateSizeDependentResources(applicationInstance), "Cannot update offscreen and textures and this could cause an invalid memory access later on.");
 	applicationInstance.Scene.Camera.Points.Position						= {0, 30, -20};
-	applicationInstance.Scene.Camera.Range.Far								= 1000;
-	applicationInstance.Scene.Camera.Range.Near								= 0.001;
+	applicationInstance.Scene.Camera.NearFar.Far							= 1000;
+	applicationInstance.Scene.Camera.NearFar.Near							= 0.001;
 	return 0;
 }
 
@@ -216,8 +216,8 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//----------------------------------------------
 	bool																		updateProjection							= false;
 	::gpk::SInput																& input										= *framework.Input;
-	if(input.KeyboardCurrent.KeyState[VK_ADD		])	{ updateProjection = true; applicationInstance.Scene.CameraAngle += frameInfo.Seconds.LastFrame * .05f; }
-	if(input.KeyboardCurrent.KeyState[VK_SUBTRACT	])	{ updateProjection = true; applicationInstance.Scene.CameraAngle -= frameInfo.Seconds.LastFrame * .05f; }
+	if(input.KeyboardCurrent.KeyState[VK_ADD		])	{ updateProjection = true; applicationInstance.Scene.Camera.Angle += frameInfo.Seconds.LastFrame * .05f; }
+	if(input.KeyboardCurrent.KeyState[VK_SUBTRACT	])	{ updateProjection = true; applicationInstance.Scene.Camera.Angle -= frameInfo.Seconds.LastFrame * .05f; }
 	if(updateProjection) {
 		::gpk::SImage<::gpk::SColorBGRA>											& offscreen									= framework.MainDisplayOffscreen->Color;
 		const ::gpk::SCoord2<uint32_t>												& offscreenMetrics							= offscreen.View.metrics();
@@ -229,8 +229,8 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 		::gpk::SMatrix4<float>														& viewportInverseCentered					= applicationInstance.Scene.Transforms.ViewportInverse	;
 		{
 			mutex_guard																	lock										(applicationInstance.UpdateLock);
-			fieldOfView.FieldOfView(applicationInstance.Scene.CameraAngle * ::gpk::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, applicationInstance.Scene.Camera.Range.Near, applicationInstance.Scene.Camera.Range.Far);
-			viewport.Viewport(offscreenMetrics, applicationInstance.Scene.Camera.Range.Far, applicationInstance.Scene.Camera.Range.Near);
+			fieldOfView.FieldOfView(applicationInstance.Scene.Camera.Angle * ::gpk::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, applicationInstance.Scene.Camera.NearFar.Near, applicationInstance.Scene.Camera.NearFar.Far);
+			viewport.Viewport(offscreenMetrics, applicationInstance.Scene.Camera.NearFar.Far, applicationInstance.Scene.Camera.NearFar.Near);
 			viewportInverse															= viewport.GetInverse();
 			const ::gpk::SCoord2<int32_t>												screenCenter								= {(int32_t)offscreenMetrics.x / 2, (int32_t)offscreenMetrics.y / 2};
 			viewportInverseCentered													= viewportInverse;
