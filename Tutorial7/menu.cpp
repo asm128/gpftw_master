@@ -12,11 +12,11 @@
 	::gpk::error_t														idMenu							= ::gpk::desktopCreateControlList(gui, desktop); 
 	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
 		::gme::SMenuItem													item							= menuItems[iOption];
-		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "??"); 
+		gerror_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "??"); 
 	}
 	if(-1 == iParentList || -1 == iParentItem)
 		desktop.Items.ControlLists[idMenu].Orientation					= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
 	else
-		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "Invalid parent?"); 
+		gerror_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "Invalid parent?"); 
 	return idMenu;
 } // File

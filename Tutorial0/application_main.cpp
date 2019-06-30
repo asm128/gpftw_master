@@ -89,12 +89,12 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 					::gpk::error_t										setup										(::SApplication& applicationInstance)													{
 	g_ApplicationInstance													= &applicationInstance;
 	
-	error_if(errored(setupThreads(applicationInstance)), "Unknown.");
+	gerror_if(errored(setupThreads(applicationInstance)), "Unknown.");
 	::gpk::SDisplay																& mainWindow								= applicationInstance.Framework.MainDisplay;
 	applicationInstance.Framework.Input.create();
-	error_if(errored(::gpk::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail, applicationInstance.Framework.Input)), "Failed to create main window why?????!?!?!?!?");
+	gerror_if(errored(::gpk::mainWindowCreate(mainWindow, applicationInstance.Framework.RuntimeValues.PlatformDetail, applicationInstance.Framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	char																		bmpFileName2	[]							= "Codepage-437-24.bmp";
-	error_if(errored(::gpk::bmpOrBmgLoad(bmpFileName2, applicationInstance.TextureFont)), "");
+	gerror_if(errored(::gpk::bmpOrBmgLoad(bmpFileName2, applicationInstance.TextureFont)), "");
 	const ::gpk::SCoord2<uint32_t>												& textureFontMetrics						= applicationInstance.TextureFont.View.metrics();
 	gpk_necall(applicationInstance.TextureFontMonochrome.resize(textureFontMetrics), "Whou would we failt ro resize=");
 	for(uint32_t y = 0, yMax = textureFontMetrics.y; y < yMax; ++y)
@@ -133,7 +133,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 			}
 		if(bNotLoaded) {
 			sprintf_s(temp, "%s%s%s", ragnaPath, "model\\", &rsmFilename[0]);	
-			error_if(errored(::gpk::rsmFileLoad(rsmData, ::gpk::view_const_string(temp, (uint32_t)-1))), "Failed to load file: %s.", temp);
+			gerror_if(errored(::gpk::rsmFileLoad(rsmData, ::gpk::view_const_string(temp, (uint32_t)-1))), "Failed to load file: %s.", temp);
 		}
 	}
 	for(uint32_t iLight = 0; iLight < rswData.RSWLights.size(); ++iLight) {
@@ -145,7 +145,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	applicationInstance.TexturesGND.resize(gndData.TextureNames.size());
 	for(uint32_t iTex = 0; iTex < gndData.TextureNames.size(); ++ iTex) {
 		sprintf_s(temp, "%s%s%s", ragnaPath, "texture\\", &gndData.TextureNames[iTex][0]);	
-		error_if(errored(::gpk::bmpFileLoad(::gpk::view_const_string(temp), applicationInstance.TexturesGND[iTex])), "Not found? %s.", temp);
+		gerror_if(errored(::gpk::bmpFileLoad(::gpk::view_const_string(temp), applicationInstance.TexturesGND[iTex])), "Not found? %s.", temp);
 	}
 
 	applicationInstance.GNDModel.Nodes		.resize(gndData.TextureNames.size() * 6);
@@ -329,7 +329,7 @@ static				::gpk::error_t										setupThreads								(::SApplication& applicati
 	//info_printf("Draw frame 0 step 1: %f.", benchTimer0.LastTimeSeconds);
 
 
-	error_if(errored(pixelsDrawn1), "%s", "??");
+	gerror_if(errored(pixelsDrawn1), "%s", "??");
 	for(uint32_t y = 0, yMax = newRenderTargetGND.Color.View.metrics().y; y < yMax; ++y) 
 		memcpy(offscreen[offscreenMetrics.y - 1 - y].begin(), newRenderTargetGND.Color.View[y].begin(), offscreenMetrics.x * sizeof(::gpk::SColorBGRA));
 	const ::gpk::view_grid<::gpk::SColorBGRA>									& minimapView									= applicationInstance.TextureMinimap.View;

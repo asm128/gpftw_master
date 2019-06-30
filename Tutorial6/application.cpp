@@ -32,12 +32,12 @@ static		::gpk::error_t												setupMenu								(::gpk::SGUI & gui, ::gpk::SD
 	::gpk::error_t																idMenu									= ::gpk::desktopCreateControlList(gui, desktop); 
 	for(uint32_t iOption = 0; iOption < menuItems.size(); ++iOption) {
 		::gme::SMenuItem															item									= menuItems[iOption];
-		error_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "%s", "??"); 
+		gerror_if(errored(::gpk::controlListPush(gui, desktop.Items.ControlLists[idMenu], item.Text, item.IdEvent)), "%s", "??"); 
 	}
 	if(-1 == iParentList || -1 == iParentItem)
 		 desktop.Items.ControlLists[idMenu].Orientation							= ::gpk::CONTROL_LIST_DIRECTION_HORIZONTAL;
 	else
-		error_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "%s", "Invalid parent?"); 
+		gerror_if(errored(::gpk::desktopControlListSetParent(gui, desktop, idMenu, iParentList, iParentItem)), "%s", "Invalid parent?"); 
 	return idMenu;
 } // File
 
@@ -75,7 +75,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::SFramework															& framework								= app.Framework;
 	::gpk::SDisplay																& mainWindow							= framework.MainDisplay;
 	ree_if(0 == framework.Input.create(), "%s", "Out of memory?");
-	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "%s", "Failed to create main window why?????!?!?!?!?");
+	gerror_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "%s", "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(::setupGUI(app), "%s", "Unknown error.");
 	return 0; 
 }
@@ -175,13 +175,13 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 			::gpk::error_t												update									(::gme::SApplication & app, bool exitSignal)		{ 
 	::gpk::STimer																timer;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "%s", "Exit requested by runtime.");
+	retval_ginfo_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "%s", "Exit requested by runtime.");
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
 		app.Framework.MainDisplayOffscreen										= app.Offscreen;
 	}
 	::gpk::SFramework															& framework								= app.Framework;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
+	retval_ginfo_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
 	::gpk::SGUI																	& gui									= *framework.GUI;
 	int32_t																		hoveredControl							= -1;

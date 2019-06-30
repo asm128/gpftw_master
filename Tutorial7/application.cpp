@@ -44,7 +44,7 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 	::gpk::SFramework															& framework								= app.Framework;
 	::gpk::SDisplay																& mainWindow							= framework.MainDisplay;
 	ree_if(0 == framework.Input.create(), "%s", "Out of memory?");
-	error_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
+	gerror_if(errored(::gpk::mainWindowCreate(mainWindow, framework.RuntimeValues.PlatformDetail, framework.Input)), "Failed to create main window why?????!?!?!?!?");
 	gpk_necall(::setupGUI(app), "%s", "Unknown error.");
 	return 0; 
 }
@@ -151,19 +151,19 @@ static		::gpk::error_t												setupDesktop							(::gpk::SGUI & gui, ::gpk::
 
 			::gpk::error_t												update									(::gme::SApplication & app, bool exitSignal)		{ 
 	::gpk::STimer																timer;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "Exit requested by runtime.");
+	retval_ginfo_if(::gpk::APPLICATION_STATE_EXIT, exitSignal, "Exit requested by runtime.");
 	{
 		::gme::mutex_guard															lock									(app.LockRender);
 		app.Framework.MainDisplayOffscreen										= app.Offscreen;
 	}
 	::gpk::SFramework															& framework								= app.Framework;
-	retval_info_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
+	retval_ginfo_if(::gpk::APPLICATION_STATE_EXIT, ::gpk::APPLICATION_STATE_EXIT == ::gpk::updateFramework(app.Framework), "%s", "Exit requested by framework update.");
 
 	::gpk::SGUI																	& gui									=* framework.GUI;
 	::gpk::SInput																& input									= *app.Framework.Input;
 	
 	::gpk::array_pod<uint32_t>													controlsToProcess					= {};
-	error_if(errored(::gpk::guiGetProcessableControls(gui, controlsToProcess)), "Floers.");
+	gerror_if(errored(::gpk::guiGetProcessableControls(gui, controlsToProcess)), "Floers.");
 
 	::gpk::SDesktop																& desktop							= app.Desktop;
 	for(uint32_t iPalette = 0; iPalette < desktop.Items.PaletteGrids.size(); ++iPalette) {
